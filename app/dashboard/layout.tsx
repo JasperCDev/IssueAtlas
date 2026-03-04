@@ -1,5 +1,5 @@
 "use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -13,8 +13,8 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-dvh bg-background p-4">
-      <Tabs value={pathName} className="">
-        <TabsList>
+      <Tabs value={pathName} className="py-4" >
+        <TabsList variant='line'>
           <TabsTrigger
             nativeButton={false}
             value="overview"
