@@ -16,6 +16,7 @@ export default function DashboardLayout({
       <Tabs value={pathName} className="">
         <TabsList>
           <TabsTrigger
+            nativeButton={false}
             value="overview"
             render={(props) => (
               <Link href="/dashboard/overview" {...props}>
@@ -25,6 +26,7 @@ export default function DashboardLayout({
           />
 
           <TabsTrigger
+            nativeButton={false}
             value="board"
             render={(props) => (
               <Link href="/dashboard/board" {...props}>
