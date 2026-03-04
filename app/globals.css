@@ -124,3 +124,9 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+
+}
