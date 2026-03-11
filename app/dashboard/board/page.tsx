@@ -5,9 +5,9 @@ import { BoardItem } from "./components/board-item";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 import {
-  MOCK_TICKET_ROWS,
   STATUS_MAP_BY_ID,
   TICKET_STATUS_LIST,
+  TICKETS,
   TicketStatus,
   type Ticket,
 } from "@/lib/mock-data";
@@ -27,8 +27,8 @@ export default function BoardPage() {
   const [boardItems, setBoardItems] =
     useState<BoardItems>(() => {
       const ticketsGrouped: { [key: string]: Ticket[] } = {};
-      for (let i = 0; i < MOCK_TICKET_ROWS.length; i++) {
-        const ticket = MOCK_TICKET_ROWS[i];
+      for (let i = 0; i < TICKETS.length; i++) {
+        const ticket = TICKETS[i];
 
         if (ticketsGrouped[ticket.statusId]) {
           ticketsGrouped[ticket.statusId].push(ticket);
