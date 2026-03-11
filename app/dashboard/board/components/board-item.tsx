@@ -1,16 +1,18 @@
+
 import { useSortable } from "@dnd-kit/react/sortable";
+import { Ticket } from "@/lib/mock-data";
 
 export function BoardItem({
   index,
-  id,
+  ticket,
   column,
 }: {
   index: number;
-  id: string;
+  ticket: Ticket;
   column: string;
 }) {
   const { ref, isDragging } = useSortable({
-    id,
+    id: ticket.id,
     index,
     type: "item",
     accept: "item",
@@ -18,12 +20,15 @@ export function BoardItem({
   });
 
   return (
-    <button
-      className="bg-card text-card-foreground p-2 w-full mb-2 rounded-lg cursor-pointer ring-1 ring-foreground/10"
+    <div
+      className="flex flex-col bg-card text-card-foreground p-2 w-full mb-2 rounded-lg cursor-pointer ring-1 ring-foreground/10"
       ref={ref}
       data-dragging={isDragging}
     >
-      {id}
-    </button>
+      <p>{ticket.title}</p>
+      <div className="flex flex-row">
+
+      </div>
+    </div>
   );
 }

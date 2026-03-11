@@ -32,6 +32,15 @@ export default function DashboardLayout({
               </Link>
             )}
           />
+          <TabsTrigger
+            nativeButton={false}
+            value="list"
+            render={(props) => (
+              <Link href="/dashboard/list" {...props}>
+                List
+              </Link>
+            )}
+          />
         </TabsList>
       </Tabs>
       <div className="flex-1 min-h-0">{children}</div>
