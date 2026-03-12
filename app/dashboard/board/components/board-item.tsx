@@ -1,9 +1,8 @@
 import { useSortable } from "@dnd-kit/react/sortable";
-import { PRIORITY_MAP, Ticket, USERS } from "@/lib/mock-data";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useMemo } from "react";
-import { RiFlag2Fill, RiUserLine } from "@remixicon/react";
-import { Badge } from "@/components/ui/badge";
+import { Ticket, USERS } from "@/lib/mock-data";
+import { BoardItemAssignee } from "./board-item-assignee";
+import { BoardItemPriority } from "./board-item-priority";
+import { BoardItemDueDate } from "./board-item-due-date";
 
 export function BoardItem({
   index,
@@ -22,29 +21,31 @@ export function BoardItem({
     group: column,
   });
 
-  const user = useMemo(() => {
-    if (!ticket.assignedId) return null;
-    return USERS.find((u) => u.id === ticket.assignedId) || null;
-  }, [ticket.assignedId]);
+  const handleTicketClick = (event: React.MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('[data-interactive="true"]')) {
+      return;
+    }
+
+    alert("ticket clicked");
+  };
 
   return (
     <div
-      className="flex flex-col bg-card text-card-foreground p-2 w-full mb-2 rounded-lg cursor-pointer ring-1 ring-foreground/10"
-      ref={ref}
-      data-dragging={isDragging}
+      className="w-full"
+      onClick={handleTicketClick}
     >
-      <p className="mb-2">{ticket.title}</p>
-      <div className="flex flex-row gap-2 items-center">
-        <Avatar size="sm">
-          <AvatarFallback>
-            {user ? (
-              <span className="text-xs">{user.firstName[0].toUpperCase() + user.firstName[1].toUpperCase()}</span>
-            ) : (
-              <RiUserLine size="16" />
-            )}
-          </AvatarFallback>
-        </Avatar>
-        <Badge size="lg" variant="outline"><RiFlag2Fill size="16" /> {PRIORITY_MAP[ticket.priority]}</Badge>
+      <div
+        className="flex flex-col align-start bg-card text-card-foreground p-2 mb-2 rounded-lg cursor-pointer ring-1 ring-foreground/10 w-full"
+        ref={ref}
+        data-dragging={isDragging}
+      >
+        <p className="mb-2 text-start">{ticket.title}</p>
+        <div className="flex flex-row gap-2 items-center">
+          <BoardItemAssignee users={USERS} assignedId={ticket.assignedId} />
+          <BoardItemPriority priority={ticket.priority} />
+          <BoardItemDueDate dueDate={ticket.dueDate} />
+        </div>
       </div>
     </div>
   );

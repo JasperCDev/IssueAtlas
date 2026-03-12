@@ -11,7 +11,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex flex-col h-dvh bg-background p-4">
-      <Tabs value={pathName} className="py-4" >
+      <Tabs value={pathName} className="mb-2" >
         <TabsList variant='line'>
           <TabsTrigger
             nativeButton={false}

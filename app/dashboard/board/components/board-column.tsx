@@ -33,33 +33,33 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "w-80 h-full p-4 mb-2 mr-2 rounded-lg",
+        "w-80 h-auto p-4 mb-2 mr-2 rounded-lg",
 
         isActiveDropTarget
           ? {
-              "bg-blue-500/15": status.variant === "blue",
-              "bg-green-500/15": status.variant === "green",
-              "bg-neutral-200/15": status.variant === "neutral",
+              "bg-blue-500/5": status.variant === "blue",
+              "bg-green-500/5": status.variant === "green",
+              "bg-secondary/50": status.variant === "neutral",
             }
           : {
-              "bg-blue-500/3": status.variant === "blue",
-              "bg-green-500/3": status.variant === "green",
-              "bg-neutral-200/3": status.variant === "neutral",
+              // "bg-blue-500/3": status.variant === "blue",
+              // "bg-green-500/3": status.variant === "green",
+              // "bg-secondary/3": status.variant === "neutral",
             },
       )}
     >
       <div className="flex flex-row gap-2 items-center mb-4">
         <Badge
           size="lg"
-          className={cn('text-secondary-foreground',{
-            "bg-blue-300": status.variant === "blue",
-            "bg-green-300": status.variant === "green",
-            "bg-neutral-200": status.variant === "neutral",
+          className={cn('',{
+            "bg-blue-500": status.variant === "blue",
+            "bg-green-500": status.variant === "green",
+            "bg-secondary text-secondary-foreground": status.variant === "neutral",
           })}
         >
           {status.name}
         </Badge>
-        <span className="text-sm">{count}</span>
+        <span className="text-base font-semibold">{count}</span>
       </div>
       <div>{children}</div>
     </div>

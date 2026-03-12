@@ -39,13 +39,14 @@ export const PRIORITY_MAP: { [key: number]: string } = {
   0: "Low",
   1: "Medium",
   2: "High",
+  3: "Critical",
 };
 
 export type Ticket = {
   id: string;
   title: string;
   description: string | null;
-  priority: number;
+  priority: number | null;
   statusId: string;
   assignedId: string | null;
   dueDate: Date | null;
@@ -103,7 +104,7 @@ export const TICKETS: Ticket[] = [
     id: "t2",
     title: "Add keyboard drag support",
     description: "Support accessible keyboard movement between columns.",
-    priority: 2,
+    priority: null,
     statusId: "0",
     assignedId: null,
     dueDate: null,
@@ -131,7 +132,7 @@ export const TICKETS: Ticket[] = [
     id: "t5",
     title: "Define board column settings",
     description: "Configure WIP limits and column-level automation rules.",
-    priority: 0,
+    priority: null,
     statusId: "2",
     assignedId: 'u1',
     dueDate: null,
@@ -144,5 +145,68 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u0',
     dueDate: new Date("2026-03-10"),
+  },
+  {
+    id: "t7",
+    title: "Add ticket filtering by assignee",
+    description: "Filter board cards based on the selected team member.",
+    priority: 2,
+    statusId: "0",
+    assignedId: 'u2',
+    dueDate: new Date("2026-03-24"),
+  },
+  {
+    id: "t8",
+    title: "Create board empty-state text",
+    description: "Show helpful text when a column has no tickets.",
+    priority: null,
+    statusId: "0",
+    assignedId: null,
+    dueDate: null,
+  },
+  {
+    id: "t9",
+    title: "Support quick ticket creation",
+    description: "Add inline form to create tickets directly in a column.",
+    priority: 1,
+    statusId: "1",
+    assignedId: 'u0',
+    dueDate: new Date("2026-03-22"),
+  },
+  {
+    id: "t10",
+    title: "Track drag event analytics",
+    description: "Record board movement events for usage insights.",
+    priority: null,
+    statusId: "1",
+    assignedId: 'u1',
+    dueDate: null,
+  },
+  {
+    id: "t11",
+    title: "Add board permissions model",
+    description: "Prevent edits for read-only users on shared boards.",
+    priority: 2,
+    statusId: "1",
+    assignedId: null,
+    dueDate: new Date("2026-03-27"),
+  },
+  {
+    id: "t12",
+    title: "Implement activity timeline",
+    description: "Display recent card updates and movement history.",
+    priority: 0,
+    statusId: "2",
+    assignedId: 'u2',
+    dueDate: new Date("2026-03-11"),
+  },
+  {
+    id: "t13",
+    title: "Document board keyboard shortcuts",
+    description: "Provide a list of supported keyboard interactions.",
+    priority: null,
+    statusId: "2",
+    assignedId: 'u1',
+    dueDate: null,
   },
 ];
