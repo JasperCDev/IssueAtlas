@@ -1,10 +1,4 @@
 
-export const API_TICKET_PRIORITIES = {
-  LOW: 0,
-  MEDIUM: 1,
-  HIGH: 2,
-} as const;
-
 export type TicketStatusVariants = "neutral" | "blue" | "green";
 
 export type TicketStatus = {
@@ -41,13 +35,21 @@ export const STATUS_MAP_BY_ID = TICKET_STATUS_LIST.reduce<{ [key: string]: Ticke
   {},
 );
 
+export const PRIORITY_MAP: { [key: number]: string } = {
+  0: "Low",
+  1: "Medium",
+  2: "High",
+};
+
 export type Ticket = {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   priority: number;
   statusId: string;
   assignedId: string | null;
+  dueDate: Date | null;
+
 };
 
 export type User = {
@@ -83,57 +85,64 @@ export const TICKETS: Ticket[] = [
     id: "t0",
     title: "Set up board drag interactions",
     description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: API_TICKET_PRIORITIES.LOW,
+    priority: 0,
     statusId: "0",
     assignedId: 'u0',
+    dueDate: new Date("2026-03-18"),
   },
   {
     id: "t1",
     title: "Design ticket card layout",
     description: "Create Jira-style card structure with metadata and labels.",
-    priority: API_TICKET_PRIORITIES.MEDIUM,
+    priority: 1,
     statusId: "0",
     assignedId: 'u1',
+    dueDate: new Date("2026-03-21"),
   },
   {
     id: "t2",
     title: "Add keyboard drag support",
     description: "Support accessible keyboard movement between columns.",
-    priority: API_TICKET_PRIORITIES.HIGH,
+    priority: 2,
     statusId: "0",
     assignedId: null,
+    dueDate: null,
   },
   {
     id: "t3",
     title: "Optimize drag performance",
     description: "Reduce re-renders while dragging cards across columns.",
-    priority: API_TICKET_PRIORITIES.HIGH,
+    priority: 2,
     statusId: "1",
     assignedId: 'u2',
+    dueDate: new Date("2026-03-16"),
   },
 
   {
     id: "t4",
     title: "Persist board ordering",
     description: "Save current board state to storage and restore on refresh.",
-    priority: API_TICKET_PRIORITIES.MEDIUM,
+    priority: 1,
     statusId: "1",
     assignedId: null,
+    dueDate: null,
   },
   {
     id: "t5",
     title: "Define board column settings",
     description: "Configure WIP limits and column-level automation rules.",
-    priority: API_TICKET_PRIORITIES.LOW,
+    priority: 0,
     statusId: "2",
     assignedId: 'u1',
+    dueDate: null,
   },
   {
     id: "t6",
     title: "Implement ticket badges",
     description: "Show priority, labels, and ticket key in card header.",
-    priority: API_TICKET_PRIORITIES.MEDIUM,
+    priority: 1,
     statusId: "2",
     assignedId: 'u0',
+    dueDate: new Date("2026-03-10"),
   },
 ];

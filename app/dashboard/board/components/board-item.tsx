@@ -1,8 +1,9 @@
 import { useSortable } from "@dnd-kit/react/sortable";
-import { Ticket, USERS } from "@/lib/mock-data";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { PRIORITY_MAP, Ticket, USERS } from "@/lib/mock-data";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useMemo } from "react";
-import { RiUserLine } from "@remixicon/react";
+import { RiFlag2Fill, RiUserLine } from "@remixicon/react";
+import { Badge } from "@/components/ui/badge";
 
 export function BoardItem({
   index,
@@ -32,17 +33,18 @@ export function BoardItem({
       ref={ref}
       data-dragging={isDragging}
     >
-      <p>{ticket.title}</p>
-      <div className="flex flex-row">
+      <p className="mb-2">{ticket.title}</p>
+      <div className="flex flex-row gap-2 items-center">
         <Avatar size="sm">
           <AvatarFallback>
             {user ? (
-              user.firstName[0].toUpperCase() + user.firstName[1].toUpperCase()
+              <span className="text-xs">{user.firstName[0].toUpperCase() + user.firstName[1].toUpperCase()}</span>
             ) : (
               <RiUserLine size="16" />
             )}
           </AvatarFallback>
         </Avatar>
+        <Badge size="lg" variant="outline"><RiFlag2Fill size="16" /> {PRIORITY_MAP[ticket.priority]}</Badge>
       </div>
     </div>
   );
