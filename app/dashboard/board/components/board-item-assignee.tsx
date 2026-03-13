@@ -59,7 +59,7 @@ export function BoardItemAssignee({
         }
       >
         <Avatar size="sm">
-          <AvatarFallback>
+          <AvatarFallback userId={selectedUser?.id}>
             {selectedUser ? (
               <span className="text-xs">{getInitials(selectedUser)}</span>
             ) : (
