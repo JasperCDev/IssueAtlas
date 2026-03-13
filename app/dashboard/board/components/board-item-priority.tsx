@@ -17,7 +17,7 @@ function getPriorityClassName(priority: number | null) {
     [-1]: "text-muted-foreground",
     0: "text-muted-foreground",
     1: "text-warning",
-    2: "text-warning",
+    2: "text-primary",
     3: "text-destructive",
   });
 }
