@@ -8,6 +8,8 @@ export type TicketStatus = {
 };
 
 
+export const TICKET_TYPES = ["Bug", "Task", "Story", "Epic"] as const;
+
 
 export const TICKET_STATUS_LIST: Array<TicketStatus> = [
   {
@@ -35,6 +37,14 @@ export const STATUS_MAP_BY_ID = TICKET_STATUS_LIST.reduce<{ [key: string]: Ticke
   {},
 );
 
+export const STATUS_MAP_BY_NAME = TICKET_STATUS_LIST.reduce<{ [key: string]: TicketStatus }>(
+  (acc, curr) => {
+    acc[curr.name] = curr;
+    return acc;
+  },
+  {},
+);
+
 export const PRIORITY_MAP: { [key: number]: string } = {
   0: "Low",
   1: "Medium",
@@ -50,7 +60,7 @@ export type Ticket = {
   statusId: string;
   assignedId: string | null;
   dueDate: Date | null;
-
+  type: typeof TICKET_TYPES[number];
 };
 
 export type User = {
@@ -108,6 +118,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u0',
     dueDate: new Date("2026-03-18"),
+    type: "Bug",
   },
   {
     id: "t1",
@@ -117,6 +128,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u1',
     dueDate: new Date("2026-03-21"),
+    type: "Task",
   },
   {
     id: "t2",
@@ -126,6 +138,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: null,
     dueDate: null,
+    type: "Story",
   },
   {
     id: "t3",
@@ -135,6 +148,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u2',
     dueDate: new Date("2026-03-16"),
+    type: "Task",
   },
 
   {
@@ -145,6 +159,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: null,
     dueDate: null,
+    type: "Story",
   },
   {
     id: "t5",
@@ -154,6 +169,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u1',
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t6",
@@ -163,6 +179,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u0',
     dueDate: new Date("2026-03-10"),
+    type: "Task",
   },
   {
     id: "t7",
@@ -172,6 +189,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u2',
     dueDate: new Date("2026-03-24"),
+    type: "Story",
   },
   {
     id: "t8",
@@ -181,6 +199,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: null,
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t9",
@@ -190,6 +209,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u0',
     dueDate: new Date("2026-03-22"),
+    type: "Story",
   },
   {
     id: "t10",
@@ -199,6 +219,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u1',
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t11",
@@ -208,6 +229,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: null,
     dueDate: new Date("2026-03-27"),
+    type: "Epic",
   },
   {
     id: "t12",
@@ -217,6 +239,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u2',
     dueDate: new Date("2026-03-11"),
+    type: "Story",
   },
   {
     id: "t13",
@@ -226,6 +249,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u1',
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t14",
@@ -235,6 +259,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u3',
     dueDate: new Date("2026-03-29"),
+    type: "Story",
   },
   {
     id: "t15",
@@ -244,6 +269,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u4',
     dueDate: new Date("2026-03-30"),
+    type: "Story",
   },
   {
     id: "t16",
@@ -253,6 +279,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: null,
     dueDate: null,
+    type: "Story",
   },
   {
     id: "t17",
@@ -262,6 +289,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u5',
     dueDate: new Date("2026-03-25"),
+    type: "Task",
   },
   {
     id: "t18",
@@ -271,6 +299,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u3',
     dueDate: new Date("2026-03-12"),
+    type: "Bug",
   },
   {
     id: "t19",
@@ -280,6 +309,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u4',
     dueDate: new Date("2026-03-31"),
+    type: "Story",
   },
   {
     id: "t20",
@@ -289,6 +319,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: null,
     dueDate: null,
+    type: "Story",
   },
   {
     id: "t21",
@@ -298,6 +329,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u5',
     dueDate: new Date("2026-03-20"),
+    type: "Story",
   },
   {
     id: "t22",
@@ -307,6 +339,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u3',
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t23",
@@ -316,6 +349,7 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u4',
     dueDate: null,
+    type: "Task",
   },
   {
     id: "t24",
@@ -325,6 +359,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: 'u5',
     dueDate: new Date("2026-04-02"),
+    type: "Bug",
   },
   {
     id: "t25",
@@ -334,6 +369,7 @@ export const TICKETS: Ticket[] = [
     statusId: "0",
     assignedId: null,
     dueDate: null,
+    type: "Story",
   },
   {
     id: "t26",
@@ -343,6 +379,7 @@ export const TICKETS: Ticket[] = [
     statusId: "1",
     assignedId: 'u3',
     dueDate: new Date("2026-04-01"),
+    type: "Epic",
   },
   {
     id: "t27",
@@ -352,5 +389,6 @@ export const TICKETS: Ticket[] = [
     statusId: "2",
     assignedId: 'u4',
     dueDate: new Date("2026-03-28"),
+    type: "Story",
   },
 ];

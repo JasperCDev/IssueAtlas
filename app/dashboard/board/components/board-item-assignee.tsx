@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 function getInitials(user: User) {
   const first = user.firstName[0]?.toUpperCase() ?? "";
@@ -26,7 +27,9 @@ export function BoardItemAssignee({
   users: User[];
   assignedId: string | null;
 }) {
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(assignedId);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(
+    assignedId,
+  );
   const [query, setQuery] = useState("");
 
   const selectedUser = useMemo(() => {
@@ -84,12 +87,28 @@ export function BoardItemAssignee({
             data-interactive="true"
           />
         </div>
-        <DropdownMenuSeparator />
+
+        {users[0] ? (
+          <Button
+            type="button"
+            onClick={() => setSelectedUserId(users[0].id)}
+            variant="link"
+            data-interactive="true"
+            size="sm"
+            className="cursor-pointer"
+          >
+            assign to me
+          </Button>
+        ) : null}
+
         <DropdownMenuItem onClick={() => setSelectedUserId(null)}>
           Unassigned
         </DropdownMenuItem>
         {filteredUsers.map((user) => (
-          <DropdownMenuItem key={user.id} onClick={() => setSelectedUserId(user.id)}>
+          <DropdownMenuItem
+            key={user.id}
+            onClick={() => setSelectedUserId(user.id)}
+          >
             {user.firstName} {user.lastName}
           </DropdownMenuItem>
         ))}

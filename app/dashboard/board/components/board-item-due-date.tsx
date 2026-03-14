@@ -12,14 +12,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { STATUS_MAP_BY_NAME, Ticket } from "@/lib/mock-data";
+import { derive } from "@/lib/utils";
 
 function toInputDateValue(value: Date | null) {
   if (!value) return "";
   return format(value, "yyyy-MM-dd");
 }
 
-export function BoardItemDueDate({ dueDate }: { dueDate: Date | null }) {
-  const [selectedDueDate, setSelectedDueDate] = useState<Date | null>(dueDate);
+export function BoardItemDueDate({ ticket }: { ticket: Ticket }) {
+  const [selectedDueDate, setSelectedDueDate] = useState<Date | null>(
+    ticket.dueDate,
+  );
 
   const inputValue = useMemo(
     () => toInputDateValue(selectedDueDate),
@@ -33,13 +37,22 @@ export function BoardItemDueDate({ dueDate }: { dueDate: Date | null }) {
     return format(selectedDueDate, "M/d");
   }, [selectedDueDate]);
 
-  const isPastDue = useMemo(() => {
+  const textColor = derive(() => {
     if (!selectedDueDate) {
-      return false;
+      return "";
     }
-
-    return isBefore(startOfDay(selectedDueDate), startOfDay(new Date()));
-  }, [selectedDueDate]);
+    if (ticket.statusId === STATUS_MAP_BY_NAME["DONE"].id) {
+      return "text-green-700";
+    }
+    const isPastDue = isBefore(
+      startOfDay(selectedDueDate),
+      startOfDay(new Date()),
+    );
+    if (isPastDue) {
+      return "text-destructive";
+    }
+    return "text-foreground";
+  });
 
   return (
     <DropdownMenu>
@@ -52,21 +65,14 @@ export function BoardItemDueDate({ dueDate }: { dueDate: Date | null }) {
           />
         }
       >
-        <Badge
-          size="lg"
-          variant={isPastDue ? "destructive" : "outline"}
-        >
+        <Badge size="lg" variant="outline">
           <RiCalendarLine
             size="16"
-            className={
-              selectedDueDate
-                ? isPastDue
-                  ? "text-destructive"
-                  : ""
-                : "text-muted-foreground"
-            }
-          />{" "}
-          {displayValue}
+            className={selectedDueDate === null ? "text-muted-foreground" : ""}
+          />
+          {selectedDueDate !== null ? (
+            <span className={textColor}>{displayValue}</span>
+          ) : null}
         </Badge>
       </DropdownMenuTrigger>
 
@@ -82,7 +88,11 @@ export function BoardItemDueDate({ dueDate }: { dueDate: Date | null }) {
                 return;
               }
 
-              const parsedDate = parse(event.target.value, "yyyy-MM-dd", new Date());
+              const parsedDate = parse(
+                event.target.value,
+                "yyyy-MM-dd",
+                new Date(),
+              );
 
               if (!isValid(parsedDate)) {
                 return;
