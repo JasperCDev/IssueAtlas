@@ -136,3 +136,29 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+@keyframes ticket-panel-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes ticket-panel-slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-ticket-panel-in {
+  animation: ticket-panel-slide-in-right 700ms ease-in-out both;
+}
+
+.animate-ticket-panel-out {
+  animation: ticket-panel-slide-out-right 700ms ease-in-out both;
+}

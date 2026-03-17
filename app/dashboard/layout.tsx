@@ -10,7 +10,7 @@ export default function DashboardLayout({
   const pathName = _pathName.split("/").at(-1);
 
   return (
-    <div className="flex flex-col h-dvh bg-background p-4">
+    <div className="flex flex-col h-dvh bg-background px-4">
       <Tabs value={pathName} className="mb-4" >
         <TabsList variant='line'>
           <TabsTrigger

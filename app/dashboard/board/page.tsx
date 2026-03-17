@@ -6,7 +6,7 @@ import { TicketPanel } from "./components/ticket-panel";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 import { TICKETS, type Ticket } from "@/lib/mock-data";
-import { derive } from "@/lib/utils";
+import { cn, derive } from "@/lib/utils";
 
 type BoardItems = { [key: string]: Ticket[] };
 export default function BoardPage() {
@@ -32,37 +32,53 @@ export default function BoardPage() {
           setBoardItems((items) => move(items, event));
         }}
       >
-        <div className="h-full flex min-h-0">
-          {Object.entries(boardItems).map(([column, tickets]) => {
-            return (
-              <BoardColumn key={column} id={column} count={tickets.length}>
-                {derive(() => {
-                  if (!tickets.length) {
-                    return "No tickets.";
-                  }
-                  return tickets.map((ticket, index) => {
-                    return (
-                      <BoardItem
-                        key={ticket.id}
-                        ticket={ticket}
-                        index={index}
-                        column={column}
-                        onOpen={() => setSelectedTicketId(ticket.id)}
-                        selected={ticket.id === selectedTicketId}
-                      />
-                    );
-                  });
-                })}
-              </BoardColumn>
-            );
-          })}
+        <div
+          className={cn(
+            "h-full min-h-0 flex transition-[padding] duration-300",
+            selectedTicketId !== null && "pr-96",
+          )}
+        >
+          <div className="min-w-0 flex-1 overflow-x-auto">
+            <div className="flex h-full min-h-0 min-w-max">
+              {Object.entries(boardItems).map(([column, tickets]) => {
+                return (
+                  <BoardColumn key={column} id={column} count={tickets.length}>
+                    {derive(() => {
+                      if (!tickets.length) {
+                        return "No tickets.";
+                      }
+                      return tickets.map((ticket, index) => {
+                        return (
+                          <BoardItem
+                            key={ticket.id}
+                            ticket={ticket}
+                            index={index}
+                            column={column}
+                            onOpen={() => {
+                              setSelectedTicketId(ticket.id);
+                            }}
+                            selected={ticket.id === selectedTicketId}
+                          />
+                        );
+                      });
+                    })}
+                  </BoardColumn>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </DragDropProvider>
       <TicketPanel
-        ticket={TICKETS.find((ticket) => ticket.id === selectedTicketId) || null}
+        key={selectedTicketId ?? "ticket-panel"}
+        ticket={
+          TICKETS.find((ticket) => ticket.id === selectedTicketId) || null
+        }
         open={selectedTicketId !== null}
         onOpenChange={(open) => {
-          if (!open) setSelectedTicketId(null);
+          if (!open) {
+            setSelectedTicketId(null);
+          }
         }}
       />
     </>
