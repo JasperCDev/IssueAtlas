@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { BoardColumn } from "./components/board-column";
-import { BoardItem } from "./components/board-item";
+import { MemoBoardItem } from "./components/board-item";
 import { TicketPanel } from "./components/ticket-panel";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 import { TICKETS, type Ticket } from "@/lib/mock-data";
-import { cn, derive } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type BoardItems = { [key: string]: Ticket[] };
 export default function BoardPage() {
@@ -24,6 +24,18 @@ export default function BoardPage() {
     }
     return ticketsGrouped;
   });
+
+  const handleOpenTicket = useCallback((ticketId: string) => {
+    setSelectedTicketId(ticketId);
+  }, []);
+
+  const selectedTicket = useMemo(() => {
+    if (!selectedTicketId) {
+      return null;
+    }
+
+    return TICKETS.find((ticket) => ticket.id === selectedTicketId) ?? null;
+  }, [selectedTicketId]);
 
   return (
     <>
@@ -43,25 +55,20 @@ export default function BoardPage() {
               {Object.entries(boardItems).map(([column, tickets]) => {
                 return (
                   <BoardColumn key={column} id={column} count={tickets.length}>
-                    {derive(() => {
-                      if (!tickets.length) {
-                        return "No tickets.";
-                      }
-                      return tickets.map((ticket, index) => {
-                        return (
-                          <BoardItem
-                            key={ticket.id}
-                            ticket={ticket}
-                            index={index}
-                            column={column}
-                            onOpen={() => {
-                              setSelectedTicketId(ticket.id);
-                            }}
-                            selected={ticket.id === selectedTicketId}
-                          />
-                        );
-                      });
-                    })}
+                    {!tickets.length
+                      ? "No tickets."
+                      : tickets.map((ticket, index) => {
+                          return (
+                            <MemoBoardItem
+                              key={ticket.id}
+                              ticket={ticket}
+                              index={index}
+                              column={column}
+                              onOpen={handleOpenTicket}
+                              selected={ticket.id === selectedTicketId}
+                            />
+                          );
+                        })}
                   </BoardColumn>
                 );
               })}
@@ -70,10 +77,7 @@ export default function BoardPage() {
         </div>
       </DragDropProvider>
       <TicketPanel
-        key={selectedTicketId ?? "ticket-panel"}
-        ticket={
-          TICKETS.find((ticket) => ticket.id === selectedTicketId) || null
-        }
+        ticket={selectedTicket}
         open={selectedTicketId !== null}
         onOpenChange={(open) => {
           if (!open) {

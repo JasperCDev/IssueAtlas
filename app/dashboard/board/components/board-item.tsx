@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { Ticket, USERS } from "@/lib/mock-data";
 import { BoardItemAssignee } from "./board-item-assignee";
@@ -22,7 +23,7 @@ export function BoardItem({
   index: number;
   ticket: Ticket;
   column: string;
-  onOpen: () => void;
+  onOpen: (ticketId: string) => void;
   selected: boolean;
 }) {
   const { ref, isDragging } = useSortable({
@@ -39,7 +40,7 @@ export function BoardItem({
       return;
     }
 
-    onOpen();
+    onOpen(ticket.id);
   };
 
   return (
@@ -75,3 +76,5 @@ export function BoardItem({
     </div>
   );
 }
+
+export const MemoBoardItem = memo(BoardItem);

@@ -24,31 +24,3 @@ export function mapStringToNumber(str: string, maxNum: number): number {
   }
   return hash % (maxNum + 1);
 }
-const max = 10;
-const testStrings = [
-  "example",
-  "another",
-  "test",
-  "hello",
-  "world",
-  "foo",
-  "bar",
-  "baz",
-  "typescript",
-  "example", // should match Test 1
-  "apple",
-  "banana",
-  "cherry",
-  "date",
-  "elderberry",
-  "fig",
-  "grape",
-  "honeydew",
-  "kiwi",
-  "lemon",
-];
-
-testStrings.forEach((str, idx) => {
-  const result = mapStringToNumber(str, max);
-  console.log(`Test ${idx + 1}: mapStringToNumber("${str}", ${max}) = ${result}`);
-});

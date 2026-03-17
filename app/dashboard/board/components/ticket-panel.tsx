@@ -58,25 +58,29 @@ export function TicketPanel({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  if (!ticket) {
-    return null;
-  }
-
-  const status = STATUS_MAP_BY_ID[ticket.statusId];
-  const assignee = USERS.find((user) => user.id === ticket.assignedId) ?? null;
+  const status = ticket ? STATUS_MAP_BY_ID[ticket.statusId] : null;
+  const assignee = ticket
+    ? USERS.find((user) => user.id === ticket.assignedId) ?? null
+    : null;
 
   return (
     <div
       className={cn(
-        "fixed top-0 right-0 z-50 flex h-dvh w-102 flex-col border-l bg-background p-4 shadow-lg",
+        "fixed top-0 right-0 z-50 flex h-dvh w-100 flex-col border-l bg-background p-4 shadow-lg",
         !open && "pointer-events-none",
+        !open && "translate-x-full opacity-0",
         open ? "animate-ticket-panel-in" : "animate-ticket-panel-out",
       )}
+      aria-hidden={!open}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="text-xs text-muted-foreground">{ticket.id.toUpperCase()}</p>
-          <h2 className="text-sm font-semibold leading-tight">{ticket.title}</h2>
+          <p className="text-xs text-muted-foreground">
+            {ticket ? ticket.id.toUpperCase() : ""}
+          </p>
+          <h2 className="text-sm font-semibold leading-tight">
+            {ticket?.title ?? ""}
+          </h2>
         </div>
 
         <Button
@@ -91,19 +95,23 @@ export function TicketPanel({
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">{status?.name ?? "Unknown"}</Badge>
+        <Badge variant="secondary">{status?.name ?? ""}</Badge>
         <Badge variant="outline">
-          {ticket.type}
-          {switchMap(ticket.type, {
-            Bug: <RiBug2Line />,
-            Task: <RiTaskLine />,
-            Story: <RiHistoryLine />,
-            Epic: <RiEmphasis />,
-          })}
+          {ticket?.type ?? ""}
+          {ticket
+            ? switchMap(ticket.type, {
+                Bug: <RiBug2Line />,
+                Task: <RiTaskLine />,
+                Story: <RiHistoryLine />,
+                Epic: <RiEmphasis />,
+              })
+            : null}
         </Badge>
         <Badge variant="outline">
-          <RiFlag2Fill className={getPriorityClassName(ticket.priority)} />
-          {ticket.priority !== null ? PRIORITY_MAP[ticket.priority] : "None"}
+          <RiFlag2Fill className={getPriorityClassName(ticket?.priority ?? null)} />
+          {ticket?.priority !== null && ticket?.priority !== undefined
+            ? PRIORITY_MAP[ticket.priority]
+            : ""}
         </Badge>
       </div>
 
@@ -123,7 +131,7 @@ export function TicketPanel({
               </AvatarFallback>
             </Avatar>
             <span>
-              {assignee ? `${assignee.firstName} ${assignee.lastName}` : "Unassigned"}
+              {assignee ? `${assignee.firstName} ${assignee.lastName}` : ""}
             </span>
           </div>
         </div>
@@ -132,14 +140,14 @@ export function TicketPanel({
           <p className="mb-2 text-muted-foreground">Due date</p>
           <div className="flex items-center gap-2">
             <RiCalendarLine size={14} className="text-muted-foreground" />
-            <span>{formatDueDate(ticket.dueDate)}</span>
+            <span>{ticket ? formatDueDate(ticket.dueDate) : ""}</span>
           </div>
         </div>
 
         <div>
           <p className="mb-2 text-muted-foreground">Description</p>
           <div className="rounded-md border bg-card px-3 py-2 text-card-foreground">
-            {ticket.description ?? "No description provided."}
+            {ticket?.description ?? ""}
           </div>
         </div>
       </div>
