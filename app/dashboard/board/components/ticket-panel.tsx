@@ -21,6 +21,7 @@ import {
   USERS,
   type Ticket,
 } from "@/lib/mock-data";
+import { useState } from "react";
 import { cn, switchMap } from "@/lib/utils";
 
 function getPriorityClassName(priority: number | null) {
@@ -65,13 +66,16 @@ export function TicketPanel({
     ? (USERS.find((user) => user.id === ticket.assignedId) ?? null)
     : null;
 
+  const [hasOpened, setHasOpened] = useState(false);
+  if (open && !hasOpened) setHasOpened(true);
+
   return (
     <div
       className={cn(
         "fixed top-0 right-0 z-50 flex h-dvh w-100 flex-col border-l bg-background p-4 shadow-lg",
         open
           ? "animate-ticket-panel-in"
-          : "animate-ticket-panel-out pointer-events-none",
+          : hasOpened ? "animate-ticket-panel-out pointer-events-none" : "translate-x-full pointer-events-none",
       )}
       aria-hidden={!open}
       onAnimationEnd={onAnimationEnd ? () => onAnimationEnd(open) : undefined}
