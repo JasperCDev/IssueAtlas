@@ -53,25 +53,28 @@ export function TicketPanel({
   ticket,
   open,
   onOpenChange,
+  onAnimationEnd,
 }: {
   ticket: Ticket | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAnimationEnd?: (open: boolean) => void;
 }) {
   const status = ticket ? STATUS_MAP_BY_ID[ticket.statusId] : null;
   const assignee = ticket
-    ? USERS.find((user) => user.id === ticket.assignedId) ?? null
+    ? (USERS.find((user) => user.id === ticket.assignedId) ?? null)
     : null;
 
   return (
     <div
       className={cn(
         "fixed top-0 right-0 z-50 flex h-dvh w-100 flex-col border-l bg-background p-4 shadow-lg",
-        !open && "pointer-events-none",
-        !open && "translate-x-full opacity-0",
-        open ? "animate-ticket-panel-in" : "animate-ticket-panel-out",
+        open
+          ? "animate-ticket-panel-in"
+          : "animate-ticket-panel-out pointer-events-none",
       )}
       aria-hidden={!open}
+      onAnimationEnd={onAnimationEnd ? () => onAnimationEnd(open) : undefined}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
@@ -108,7 +111,9 @@ export function TicketPanel({
             : null}
         </Badge>
         <Badge variant="outline">
-          <RiFlag2Fill className={getPriorityClassName(ticket?.priority ?? null)} />
+          <RiFlag2Fill
+            className={getPriorityClassName(ticket?.priority ?? null)}
+          />
           {ticket?.priority !== null && ticket?.priority !== undefined
             ? PRIORITY_MAP[ticket.priority]
             : ""}
@@ -124,7 +129,9 @@ export function TicketPanel({
             <Avatar size="sm">
               <AvatarFallback userId={assignee?.id}>
                 {assignee ? (
-                  <span>{getInitials(assignee.firstName, assignee.lastName)}</span>
+                  <span>
+                    {getInitials(assignee.firstName, assignee.lastName)}
+                  </span>
                 ) : (
                   <RiUserLine size={14} />
                 )}

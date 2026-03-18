@@ -25,8 +25,12 @@ export default function BoardPage() {
     return ticketsGrouped;
   });
 
+  const [ticketPanelOpen, setTicketPanelOpen] = useState(false);
+  const [ticketPanelAnimatingOpen, setTicketPanelAnimatingOpen] = useState(false);
+
   const handleOpenTicket = useCallback((ticketId: string) => {
     setSelectedTicketId(ticketId);
+    setTicketPanelAnimatingOpen(true);
   }, []);
 
   const selectedTicket = useMemo(() => {
@@ -44,12 +48,7 @@ export default function BoardPage() {
           setBoardItems((items) => move(items, event));
         }}
       >
-        <div
-          className={cn(
-            "h-full min-h-0 flex transition-[padding] duration-300",
-            selectedTicketId !== null && "pr-96",
-          )}
-        >
+        <div className={cn("h-full min-h-0 flex", ticketPanelOpen && "pr-96")}>
           <div className="min-w-0 flex-1 overflow-x-auto">
             <div className="flex h-full min-h-0 min-w-max">
               {Object.entries(boardItems).map(([column, tickets]) => {
@@ -78,10 +77,19 @@ export default function BoardPage() {
       </DragDropProvider>
       <TicketPanel
         ticket={selectedTicket}
-        open={selectedTicketId !== null}
+        open={ticketPanelAnimatingOpen}
+        onAnimationEnd={(open) => {
+          if (open) {
+            setTicketPanelOpen(true);
+            return;
+          }
+
+          setSelectedTicketId(null);
+        }}
         onOpenChange={(open) => {
           if (!open) {
-            setSelectedTicketId(null);
+            setTicketPanelAnimatingOpen(false);
+            setTicketPanelOpen(false);
           }
         }}
       />
