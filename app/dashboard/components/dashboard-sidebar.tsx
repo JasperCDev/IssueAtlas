@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   RiBarChartBoxLine,
   RiCalendarLine,
@@ -8,10 +9,12 @@ import {
   RiHome4Line,
   RiInboxLine,
   RiListCheck3,
+  RiMoonLine,
   RiProgress1Line,
   RiProjectorLine,
   RiSettings3Line,
   RiSparklingLine,
+  RiSunLine,
   RiTeamLine,
   RiTimeLine,
   RiUserLine,
@@ -19,6 +22,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -96,6 +100,16 @@ function NavGroup({
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const [isDark, setIsDark] = useState(
+    () => typeof window !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -120,7 +134,15 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <p className="px-2 text-xs text-sidebar-foreground/70">Sprint workspace</p>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={toggleTheme}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? <RiSunLine size={16} /> : <RiMoonLine size={16} />}
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
