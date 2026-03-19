@@ -6,9 +6,17 @@ export function useTicketPanelState(tickets: Ticket[]) {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [ticketPanelOpen, setTicketPanelOpen] = useState(false);
   const [ticketPanelAnimatingOpen, setTicketPanelAnimatingOpen] = useState(false);
+  const [panelMode, setPanelMode] = useState<"view" | "create">("view");
 
   const handleOpenTicket = useCallback((ticketId: string) => {
+    setPanelMode("view");
     setSelectedTicketId(ticketId);
+    setTicketPanelAnimatingOpen(true);
+  }, []);
+
+  const handleOpenCreateForm = useCallback(() => {
+    setPanelMode("create");
+    setSelectedTicketId(null);
     setTicketPanelAnimatingOpen(true);
   }, []);
 
@@ -41,7 +49,9 @@ export function useTicketPanelState(tickets: Ticket[]) {
     selectedTicket,
     ticketPanelOpen,
     ticketPanelAnimatingOpen,
+    panelMode,
     handleOpenTicket,
+    handleOpenCreateForm,
     handleTicketPanelAnimationEnd,
     handleTicketPanelOpenChange,
   };

@@ -28,10 +28,12 @@ export function TicketBoardHeader({
   users,
   selectedAssigneeIds,
   onAssigneeToggle,
+  onAddTicketClick,
 }: {
   users: User[];
   selectedAssigneeIds: string[];
   onAssigneeToggle: (assigneeId: string) => void;
+  onAddTicketClick: () => void;
 }) {
   const visibleUsers = users.slice(0, 5);
   const hiddenUsers = users.slice(5);
@@ -132,7 +134,7 @@ export function TicketBoardHeader({
           ) : null}
         </AvatarGroup>
       </div>
-      <Button type="button">Add Ticket</Button>
+      <Button size="sm" type="button" onClick={onAddTicketClick}>Add Ticket</Button>
     </div>
   );
 }

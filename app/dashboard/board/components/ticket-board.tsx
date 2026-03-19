@@ -11,7 +11,7 @@ import { TicketBoardHeader } from "@/app/dashboard/board/components/ticket-board
 
 import { BoardColumn } from "./board-column";
 import { MemoBoardItem } from "./board-item";
-import { TicketPanel } from "./ticket-panel";
+import { TicketPanel, type CreateTicketInput } from "./ticket-panel";
 
 type BoardItems = { [key: string]: Ticket[] };
 
@@ -42,6 +42,40 @@ export function TicketBoard() {
     return ticketsGrouped;
   });
 
+  const allTickets = useMemo(
+    () => Object.values(boardItems).flat(),
+    [boardItems],
+  );
+
+  const handleCreateTicket = (input: CreateTicketInput) => {
+    setBoardItems((current) => {
+      const next = { ...current };
+      const maxId = Object.values(current)
+        .flat()
+        .reduce((acc, ticket) => {
+          const match = /^t(\d+)$/.exec(ticket.id);
+          if (!match) return acc;
+          return Math.max(acc, Number(match[1]));
+        }, -1);
+
+      const newTicket: Ticket = {
+        id: `t${maxId + 1}`,
+        title: input.title,
+        description: input.description,
+        priority: input.priority,
+        statusId: input.statusId,
+        assignedId: input.assignedId,
+        dueDate: input.dueDate,
+        type: input.type,
+      };
+
+      const targetColumn = next[input.statusId] ?? [];
+      next[input.statusId] = [newTicket, ...targetColumn];
+
+      return next;
+    });
+  };
+
   const visibleBoardItems = useMemo<BoardItems>(() => {
     if (selectedAssigneeIds.length === 0) return boardItems;
     const result: BoardItems = {};
@@ -61,10 +95,12 @@ export function TicketBoard() {
     selectedTicket,
     ticketPanelOpen,
     ticketPanelAnimatingOpen,
+    panelMode,
     handleOpenTicket,
+    handleOpenCreateForm,
     handleTicketPanelAnimationEnd,
     handleTicketPanelOpenChange,
-  } = useTicketPanelState(TICKETS);
+  } = useTicketPanelState(allTickets);
 
   return (
     <>
@@ -79,6 +115,7 @@ export function TicketBoard() {
               users={USERS}
               selectedAssigneeIds={selectedAssigneeIds}
               onAssigneeToggle={handleAssigneeToggle}
+              onAddTicketClick={handleOpenCreateForm}
             />
             <div className="min-w-0 min-h-0 flex-1 overflow-x-auto">
               <div className="flex h-full min-h-0 min-w-max gap-4">
@@ -118,8 +155,10 @@ export function TicketBoard() {
       <TicketPanel
         ticket={selectedTicket}
         open={ticketPanelAnimatingOpen}
+        mode={panelMode}
         onAnimationEnd={handleTicketPanelAnimationEnd}
         onOpenChange={handleTicketPanelOpenChange}
+        onCreateTicket={handleCreateTicket}
       />
     </>
   );

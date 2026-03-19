@@ -21,8 +21,6 @@ export function BoardColumn({
   });
   const { target } = useDragOperation();
 
-  // `isDropTarget` can briefly switch to item targets; keep the column active
-  // when hovering sortable items that belong to this column group.
   const isColumnTarget = target?.id === id;
   const targetGroup = (target as { group?: string } | null | undefined)?.group;
   const isGroupTarget = targetGroup === id;
@@ -41,20 +39,17 @@ export function BoardColumn({
               "bg-green-500/5": status.variant === "green",
               "bg-secondary/50": status.variant === "neutral",
             }
-          : {
-              // "bg-blue-500/3": status.variant === "blue",
-              // "bg-green-500/3": status.variant === "green",
-              // "bg-secondary/3": status.variant === "neutral",
-            },
+          : {},
       )}
     >
       <div className="flex flex-row gap-2 items-center mb-4 p-1">
         <Badge
           size="lg"
-          className={cn('',{
+          className={cn("", {
             "bg-blue-500": status.variant === "blue",
             "bg-green-500": status.variant === "green",
-            "bg-secondary text-secondary-foreground": status.variant === "neutral",
+            "bg-secondary text-secondary-foreground":
+              status.variant === "neutral",
           })}
         >
           {status.name}
