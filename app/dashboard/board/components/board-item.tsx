@@ -49,7 +49,7 @@ export function BoardItem({
         className={cn(
           "flex flex-col align-start bg-card text-card-foreground p-2 mb-2 rounded-lg cursor-pointer w-full",
           selected
-            ? "bg-primary/5 ring-2 ring-primary-foreground/5"
+            ? "ring-1 ring-primary bg-primary/5"
             : "ring-1 ring-foreground/10",
         )}
         ref={ref}
