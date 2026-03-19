@@ -112,7 +112,7 @@ export function DashboardSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="gap-3">
         <NavGroup label="General" items={NAV_MAIN} pathname={pathname} />
         <NavGroup label="Insights" items={NAV_INSIGHTS} pathname={pathname} />
         <NavGroup label="Project" items={NAV_PROJECT} pathname={pathname} />

@@ -33,7 +33,7 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "w-80 h-full min-h-0 p-0 mb-2 mr-2 rounded-lg first:pl-0 last:pr-0 flex flex-col",
+        "w-80 h-full min-h-0 p-0 rounded-lg first:pl-0 last:pr-0 flex flex-col",
 
         isActiveDropTarget
           ? {
