@@ -33,7 +33,7 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "w-80 h-full min-h-0 p-0 rounded-lg first:pl-0 last:pr-0 flex flex-col",
+        "w-80 h-full min-h-0 p-0 rounded-lg flex flex-col",
 
         isActiveDropTarget
           ? {
@@ -61,7 +61,7 @@ export function BoardColumn({
         </Badge>
         <span className="text-base font-semibold">{count}</span>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto p-1">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-1 pr-2">{children}</div>
     </div>
   );
 }
