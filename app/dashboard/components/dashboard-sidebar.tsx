@@ -120,7 +120,7 @@ export function DashboardSidebar() {
               <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
                 <RiSparklingLine size={16} />
               </span>
-              <span className="font-semibold">Pulse</span>
+              <span className="font-semibold group-data-[collapsible=icon]:hidden">Pulse</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
