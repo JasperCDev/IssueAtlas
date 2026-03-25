@@ -38,6 +38,7 @@ export function BoardColumn({
               "bg-blue-500/5": status.variant === "blue",
               "bg-green-500/5": status.variant === "green",
               "bg-secondary/50": status.variant === "neutral",
+              "bg-yellow-500/5": status.variant === "yellow",
             }
           : {},
       )}
@@ -48,8 +49,8 @@ export function BoardColumn({
           className={cn("", {
             "bg-blue-500": status.variant === "blue",
             "bg-green-500": status.variant === "green",
-            "bg-secondary text-secondary-foreground":
-              status.variant === "neutral",
+            "bg-secondary text-secondary-foreground": status.variant === "neutral",
+            "bg-yellow-500": status.variant === "yellow",
           })}
         >
           {status.name}
