@@ -75,7 +75,7 @@ export function SortableWidgetCard({
   children,
 }: SortableWidgetCardProps) {
   return (
-    <Card className="h-full flex flex-col overflow-hidden" size="xs">
+    <Card className="h-full flex flex-col overflow-hidden" size="sm">
       <RiDeleteBinLine className="size-4 text-muted-foreground absolute top-4 right-4 opacity-0 group-hover:opacity-100" />
 
       <CardHeader
@@ -85,7 +85,7 @@ export function SortableWidgetCard({
       >
         <CardTitle className="text-xs">{title}</CardTitle>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="flex min-h-0 flex-1">{children}</CardContent>
     </Card>
   );
 }

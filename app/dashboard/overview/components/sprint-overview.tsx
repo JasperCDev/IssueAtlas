@@ -1,8 +1,9 @@
 "use client";
 
-import {
-  AssigneeAvatar,
-} from "@/components/ui/avatar";
+import { useMemo } from "react";
+
+import { AssigneeAvatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { TICKETS, TICKET_STATUS_LIST, USERS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -12,40 +13,73 @@ import {
   withSortableWidget,
 } from "./sortable-widget";
 
-const usersById = new Map(USERS.map((user) => [user.id, user]));
-
-const statusRows = TICKET_STATUS_LIST.map((status) => ({
-  status,
-  tickets: TICKETS.filter((ticket) => ticket.statusId === status.id),
-}));
-
 function SprintOverviewContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
+  const statusRows = useMemo(() => {
+    const statusOrder: Record<string, number> = {
+      TODO: 0,
+      "IN PROGRESS": 1,
+      "IN TESTING": 2,
+      DONE: 3,
+    };
+
+    return [...TICKET_STATUS_LIST]
+      .sort(
+        (a, b) =>
+          (statusOrder[a.name] ?? Number.MAX_SAFE_INTEGER) -
+          (statusOrder[b.name] ?? Number.MAX_SAFE_INTEGER),
+      )
+      .map((status) => ({
+        status,
+        users: USERS.map((user) => ({
+          ...user,
+          tickets: TICKETS.filter(
+            (ticket) =>
+              ticket.statusId === status.id && ticket.assignedId === user.id,
+          ),
+        })).filter((user) => user.tickets.length > 0),
+      }));
+  }, []);
+
   return (
     <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
       <div className="grid h-full grid-cols-4 gap-2">
-        {statusRows.map(({ status, tickets }) => (
-          <div key={status.id} className="flex flex-col gap-1 w-25">
-            <h6
+        {statusRows.map(({ status, users }) => (
+          <div
+            key={status.id}
+            className="flex h-full min-h-0 w-25 flex-col gap-1"
+          >
+            <Badge
+              size="default"
+              variant="outline"
               className={cn(
-                "text-xs font-semibold",
-                status.variant === "blue" && "text-blue-500",
-                status.variant === "green" && "text-green-500",
-                status.variant === "yellow" && "text-yellow-500",
+                "w-fit mb-2",
+                status.variant === "blue" && "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                status.variant === "green" && "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400",
+                status.variant === "neutral" && "border-border bg-muted/40 text-muted-foreground",
+                status.variant === "yellow" && "border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
               )}
             >
               {status.name}
-            </h6>
+            </Badge>
 
-            <div className="flex flex-col gap-1">
-              {tickets.map((ticket) => {
-                const user = ticket.assignedId ? usersById.get(ticket.assignedId) : null;
+            <div className="flex min-h-0 flex-1 flex-col flex-wrap content-start gap-1">
+              {users.map((user) => {
                 return (
-                  <div key={ticket.id} className="flex items-center" title={ticket.title}>
-                    <AssigneeAvatar size="xs" user={user} />
-
+                  <div key={user.id} className="flex shrink-0 flex-col gap-1">
+                    {user.tickets.map((ticket) => {
+                      return (
+                        <div
+                          key={ticket.id}
+                          className="flex items-center"
+                          title={ticket.title}
+                        >
+                          <AssigneeAvatar size="xs" user={user} />
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -58,4 +92,3 @@ function SprintOverviewContent({
 }
 
 export const SprintOverviewWidget = withSortableWidget(SprintOverviewContent);
-

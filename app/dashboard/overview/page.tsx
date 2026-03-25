@@ -60,7 +60,7 @@ export default function Dashboard() {
       >
         <div
           className="grid gap-4 auto-rows-[260px]
-          grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-1"
         >
           {widgets.map((widget) =>
             widget.id === "sprint" ? (

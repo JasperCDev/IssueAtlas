@@ -46,11 +46,12 @@ export function BoardColumn({
       <div className="flex flex-row gap-2 items-center mb-4 p-1">
         <Badge
           size="lg"
+          variant="outline"
           className={cn("", {
-            "bg-blue-500": status.variant === "blue",
-            "bg-green-500": status.variant === "green",
-            "bg-secondary text-secondary-foreground": status.variant === "neutral",
-            "bg-yellow-500": status.variant === "yellow",
+            "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400": status.variant === "blue",
+            "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400": status.variant === "green",
+            "border-border bg-muted/40 text-muted-foreground": status.variant === "neutral",
+            "border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400": status.variant === "yellow",
           })}
         >
           {status.name}
