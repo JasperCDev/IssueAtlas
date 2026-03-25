@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
-  Avatar,
-  AvatarFallback,
+  AssigneeAvatar,
   AvatarGroup,
   AvatarGroupCount,
 } from "@/components/ui/avatar";
@@ -17,12 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { User } from "@/lib/mock-data";
-import { RiUserLine } from "@remixicon/react";
 import { UNASSIGNED_ASSIGNEE_ID } from "@/app/dashboard/board/components/ticket-board";
-
-function getInitials(firstName: string, lastName: string) {
-  return `${firstName[0]?.toUpperCase() ?? ""}${lastName[0]?.toUpperCase() ?? ""}`;
-}
 
 export function TicketBoardHeader({
   users,
@@ -61,11 +55,7 @@ export function TicketBoardHeader({
                 "ring-1 ring-primary ring-offset-background",
             )}
           >
-            <Avatar size="sm">
-              <AvatarFallback>
-                <RiUserLine size={14} />
-              </AvatarFallback>
-            </Avatar>
+            <AssigneeAvatar size="sm" />
           </button>
           {visibleUsers.map((user) => {
             const isSelected = selectedAssigneeIds.includes(user.id);
@@ -84,11 +74,7 @@ export function TicketBoardHeader({
                     "ring-1 ring-primary ring-offset-background",
                 )}
               >
-                <Avatar size="sm">
-                  <AvatarFallback userId={user.id}>
-                    {getInitials(user.firstName, user.lastName)}
-                  </AvatarFallback>
-                </Avatar>
+                <AssigneeAvatar size="sm" user={user} />
               </button>
             );
           })}

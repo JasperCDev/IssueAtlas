@@ -1,9 +1,7 @@
 "use client";
 
-import { RiUserLine } from "@remixicon/react";
 import {
-  Avatar,
-  AvatarFallback,
+  AssigneeAvatar,
 } from "@/components/ui/avatar";
 import { TICKETS, TICKET_STATUS_LIST, USERS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -13,10 +11,6 @@ import {
   type SortableWidgetComponentProps,
   withSortableWidget,
 } from "./sortable-widget";
-
-function getInitials(firstName: string, lastName: string) {
-  return `${firstName[0]?.toUpperCase() ?? ""}${lastName[0]?.toUpperCase() ?? ""}`;
-}
 
 const usersById = new Map(USERS.map((user) => [user.id, user]));
 
@@ -50,17 +44,7 @@ function SprintOverviewContent({
                 const user = ticket.assignedId ? usersById.get(ticket.assignedId) : null;
                 return (
                   <div key={ticket.id} className="flex items-center" title={ticket.title}>
-                    <Avatar size="xs">
-                      {user ? (
-                        <AvatarFallback userId={user.id}>
-                          {getInitials(user.firstName, '')}
-                        </AvatarFallback>
-                      ) : (
-                        <AvatarFallback>
-                          <RiUserLine size={8} />
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
+                    <AssigneeAvatar size="xs" user={user} />
 
                   </div>
                 );

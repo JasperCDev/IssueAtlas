@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import { RiUserLine } from "@remixicon/react";
 
 import { cn, mapStringToNumber } from "@/lib/utils";
 
@@ -65,7 +66,7 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center rounded-full text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
+        "flex size-full items-center justify-center rounded-full text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs group-data-[size=xs]/avatar:text-xs",
         colorClass,
         className,
       )}
@@ -119,6 +120,53 @@ function AvatarGroupCount({
   );
 }
 
+type AssigneeAvatarUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
+
+function getInitials(firstName: string, lastName: string) {
+  return `${firstName[0]?.toUpperCase() ?? ""}${lastName[0]?.toUpperCase() ?? ""}`;
+}
+
+function AssigneeAvatar({
+  user,
+  size = "default",
+  iconSize,
+  className,
+  fallbackClassName,
+}: {
+  user?: AssigneeAvatarUser | null;
+  size?: "default" | "sm" | "lg" | "xs";
+  iconSize?: number;
+  className?: string;
+  fallbackClassName?: string;
+}) {
+  const resolvedIconSize =
+    iconSize ??
+    ({
+      xs: 8,
+      sm: 14,
+      default: 16,
+      lg: 18,
+    }[size] ?? 16);
+
+  return (
+    <Avatar size={size} className={className}>
+      {user ? (
+        <AvatarFallback userId={user.id} className={fallbackClassName}>
+          {getInitials(user.firstName, user.lastName)}
+        </AvatarFallback>
+      ) : (
+        <AvatarFallback className={fallbackClassName}>
+          <RiUserLine size={resolvedIconSize} />
+        </AvatarFallback>
+      )}
+    </Avatar>
+  );
+}
+
 export {
   Avatar,
   AvatarImage,
@@ -126,4 +174,5 @@ export {
   AvatarGroup,
   AvatarGroupCount,
   AvatarBadge,
+  AssigneeAvatar,
 };
