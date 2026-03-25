@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   RiBarChartBoxLine,
   RiCalendarLine,
@@ -21,6 +20,7 @@ import {
 } from "@remixicon/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -100,15 +100,11 @@ function NavGroup({
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const [isDark, setIsDark] = useState(
-    () => typeof window !== "undefined" && document.documentElement.classList.contains("dark"),
-  );
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
+    setTheme(isDark ? "light" : "dark");
   };
 
   return (
