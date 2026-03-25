@@ -130,33 +130,42 @@ function getInitials(firstName: string, lastName: string) {
   return `${firstName[0]?.toUpperCase() ?? ""}${lastName[0]?.toUpperCase() ?? ""}`;
 }
 
+function getAssigneeDisplayText(user: AssigneeAvatarUser, size: "default" | "sm" | "lg" | "xs") {
+  if (size === "xs") {
+    return user.firstName[0]?.toUpperCase() ?? "";
+  }
+
+  return getInitials(user.firstName, user.lastName);
+}
+
 function AssigneeAvatar({
   user,
   size = "default",
-  iconSize,
   className,
   fallbackClassName,
 }: {
   user?: AssigneeAvatarUser | null;
   size?: "default" | "sm" | "lg" | "xs";
-  iconSize?: number;
   className?: string;
   fallbackClassName?: string;
 }) {
   const resolvedIconSize =
-    iconSize ??
-    ({
+    {
       xs: 8,
       sm: 14,
       default: 16,
       lg: 18,
-    }[size] ?? 16);
+    }[size];
+
+  const fullName = user
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : "Unassigned";
 
   return (
-    <Avatar size={size} className={className}>
+    <Avatar size={size} className={className} title={fullName}>
       {user ? (
         <AvatarFallback userId={user.id} className={fallbackClassName}>
-          {getInitials(user.firstName, user.lastName)}
+          {getAssigneeDisplayText(user, size)}
         </AvatarFallback>
       ) : (
         <AvatarFallback className={fallbackClassName}>
