@@ -55,7 +55,7 @@ function SprintOverviewContent({
               size="default"
               variant="outline"
               className={cn(
-                "w-fit mb-2",
+                "w-fit mb-1 p-1 h-4",
                 status.variant === "blue" && "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
                 status.variant === "green" && "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400",
                 status.variant === "neutral" && "border-border bg-muted/40 text-muted-foreground",
@@ -65,7 +65,7 @@ function SprintOverviewContent({
               {status.name}
             </Badge>
 
-            <div className="flex min-h-0 flex-1 flex-col flex-wrap content-start gap-1">
+            <div className="flex min-h-0 flex-1 flex-col flex-wrap content-start gap-1 pl-1">
               {users.map((user) => {
                 return (
                   <div key={user.id} className="flex shrink-0 flex-col gap-1">

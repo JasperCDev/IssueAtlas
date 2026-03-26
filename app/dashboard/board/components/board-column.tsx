@@ -35,10 +35,10 @@ export function BoardColumn({
 
         isActiveDropTarget
           ? {
-              "bg-blue-500/5": status.variant === "blue",
-              "bg-green-500/5": status.variant === "green",
-              "bg-secondary/50": status.variant === "neutral",
-              "bg-yellow-500/5": status.variant === "yellow",
+              "bg-blue-500/5 dark:bg-blue-500/10": status.variant === "blue",
+              "bg-green-500/5 dark:bg-green-500/10": status.variant === "green",
+              "bg-secondary/50 dark:bg-secondary/70": status.variant === "neutral",
+              "bg-yellow-500/5 dark:bg-yellow-500/10": status.variant === "yellow",
             }
           : {},
       )}

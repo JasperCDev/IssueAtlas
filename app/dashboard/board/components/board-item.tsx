@@ -55,7 +55,7 @@ export function BoardItem({
         ref={ref}
         data-dragging={isDragging}
       >
-        <p className="mb-3 text-start">{ticket.title}</p>
+        <p className="mb-4 text-start">{ticket.title}</p>
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row gap-2 items-center">
             <BoardItemAssignee users={USERS} assignedId={ticket.assignedId} />
