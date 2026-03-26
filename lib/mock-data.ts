@@ -80,6 +80,34 @@ export type User = {
   email: string;
 }
 
+export type TeamId = "frontend" | "backend" | "design";
+
+export type Team = {
+  id: TeamId;
+  name: string;
+  userIds: string[];
+};
+
+export const TEAM_LIST: Team[] = [
+  {
+    id: "frontend",
+    name: "Frontend",
+    userIds: ["u0", "u1", "u2", "u3"],
+  },
+  {
+    id: "backend",
+    name: "Backend",
+    userIds: ["u4", "u5", "u6", "u7"],
+  },
+  {
+    id: "design",
+    name: "Design",
+    userIds: ["u8", "u9", "u10", "u11"],
+  },
+];
+
+export const DEFAULT_TEAM_ID: TeamId = "frontend";
+
 export const USERS: User[] = [
   {
     id: 'u0',
@@ -1985,3 +2013,87 @@ export const TICKETS: Ticket[] = [
     type: "Bug",
   },
 ];
+
+const TEAM_IDS = TEAM_LIST.map((team) => team.id);
+
+const USER_TEAM_MAP = TEAM_LIST.reduce<Record<string, TeamId>>((acc, team) => {
+  for (const userId of team.userIds) {
+    acc[userId] = team.id;
+  }
+  return acc;
+}, {});
+
+const TEAM_USERS_BY_ID = TEAM_LIST.reduce<Record<TeamId, User[]>>(
+  (acc, team) => {
+    acc[team.id] = USERS.filter((user) => team.userIds.includes(user.id));
+    return acc;
+  },
+  {
+    frontend: [],
+    backend: [],
+    design: [],
+  },
+);
+
+function getTicketNumber(ticketId: string) {
+  const match = /^t(\d+)$/.exec(ticketId);
+  if (!match) {
+    return 0;
+  }
+
+  return Number(match[1]);
+}
+
+function fallbackTeamIdForTicket(ticketId: string): TeamId {
+  const index = getTicketNumber(ticketId) % TEAM_IDS.length;
+  return TEAM_IDS[index] ?? DEFAULT_TEAM_ID;
+}
+
+function getTeamIdForTicket(ticket: Ticket): TeamId {
+  if (ticket.assignedId && USER_TEAM_MAP[ticket.assignedId]) {
+    return USER_TEAM_MAP[ticket.assignedId];
+  }
+
+  return fallbackTeamIdForTicket(ticket.id);
+}
+
+const TEAM_TICKETS_BY_ID = TICKETS.reduce<Record<TeamId, Ticket[]>>(
+  (acc, ticket) => {
+    const teamId = getTeamIdForTicket(ticket);
+    acc[teamId].push(ticket);
+    return acc;
+  },
+  {
+    frontend: [],
+    backend: [],
+    design: [],
+  },
+);
+
+export function resolveTeamId(teamId: string | undefined): TeamId {
+  if (teamId && TEAM_IDS.includes(teamId as TeamId)) {
+    return teamId as TeamId;
+  }
+
+  return DEFAULT_TEAM_ID;
+}
+
+export function getTeamUsers(teamId: string | undefined): User[] {
+  const resolved = resolveTeamId(teamId);
+  return TEAM_USERS_BY_ID[resolved];
+}
+
+export function getTeamTickets(teamId: string | undefined): Ticket[] {
+  const resolved = resolveTeamId(teamId);
+  return TEAM_TICKETS_BY_ID[resolved];
+}
+
+export function getTeamData(teamId: string | undefined) {
+  const resolved = resolveTeamId(teamId);
+  return {
+    teamId: resolved,
+    team: TEAM_LIST.find((item) => item.id === resolved) ?? TEAM_LIST[0],
+    users: TEAM_USERS_BY_ID[resolved],
+    tickets: TEAM_TICKETS_BY_ID[resolved],
+  };
+}

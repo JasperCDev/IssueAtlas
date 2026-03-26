@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -26,24 +26,54 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DEFAULT_TEAM_ID, TEAM_LIST } from "@/lib/mock-data";
 import { DashboardSidebar } from "./components/dashboard-sidebar";
 
 export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
-  const section = pathname.split("/").at(-1) ?? "dashboard";
-  const [activeTabId, setActiveTabId] = useState<string | null>(null);
-  const [tabs, setTabs] = useState([
-    { value: "overview", href: "/dashboard/overview", label: "Overview" },
-    { value: "board", href: "/dashboard/board", label: "Board" },
-    { value: "list", href: "/dashboard/list", label: "List" },
-    { value: "timeline", href: "/dashboard/timeline", label: "Timeline" },
-    { value: "calendar", href: "/dashboard/calendar", label: "Calendar" },
-    { value: "workflow", href: "/dashboard/workflow", label: "Workflow" },
-    { value: "files", href: "/dashboard/files", label: "Files" },
-    { value: "reports", href: "/dashboard/reports", label: "Reports" },
+  const segments = pathname.split("/").filter(Boolean);
+  const dashboardIndex = segments.indexOf("dashboard");
+  const maybeTeam = segments[dashboardIndex + 1];
+  const isTeamRoute = TEAM_LIST.some((team) => team.id === maybeTeam);
+  const teamId = isTeamRoute ? maybeTeam! : DEFAULT_TEAM_ID;
+  const section = isTeamRoute
+    ? (segments[dashboardIndex + 2] ?? "overview")
+    : (segments[dashboardIndex + 1] ?? "overview");
+
+  const tabItems = useMemo(
+    () => ({
+      overview: {
+        value: "overview",
+        href: `/dashboard/${teamId}/overview`,
+        label: "Overview",
+      },
+      board: {
+        value: "board",
+        href: `/dashboard/${teamId}/board`,
+        label: "Board",
+      },
+      list: {
+        value: "list",
+        href: `/dashboard/${teamId}/list`,
+        label: "List",
+      },
+    }),
+    [teamId],
+  );
+
+  const [tabOrder, setTabOrder] = useState<Array<keyof typeof tabItems>>([
+    "overview",
+    "board",
+    "list",
   ]);
+
+  const tabs = tabOrder
+    .map((key) => tabItems[key])
+    .filter((tab) => tab !== undefined);
+
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -55,9 +85,9 @@ export default function DashboardLayout({
 
     if (!over || active.id === over.id) return;
 
-    setTabs((prev) => {
-      const oldIndex = prev.findIndex((tab) => tab.value === active.id);
-      const newIndex = prev.findIndex((tab) => tab.value === over.id);
+    setTabOrder((prev) => {
+      const oldIndex = prev.findIndex((tab) => tab === active.id);
+      const newIndex = prev.findIndex((tab) => tab === over.id);
 
       if (oldIndex === -1 || newIndex === -1) return prev;
       return arrayMove(prev, oldIndex, newIndex);

@@ -1,5 +1,6 @@
-import { TicketBoard } from "@/app/dashboard/board/components/ticket-board";
+import { redirect } from "next/navigation";
+import { DEFAULT_TEAM_ID } from "@/lib/mock-data";
 
-export default function BoardPage() {
-  return <TicketBoard />;
+export default function LegacyBoardPage() {
+  redirect(`/dashboard/${DEFAULT_TEAM_ID}/board`);
 }

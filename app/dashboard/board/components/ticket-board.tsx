@@ -3,8 +3,13 @@
 import { useMemo, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
+import { useParams } from "next/navigation";
 
-import { TICKETS, TICKET_STATUS_LIST, USERS, type Ticket } from "@/lib/mock-data";
+import {
+  getTeamData,
+  TICKET_STATUS_LIST,
+  type Ticket,
+} from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useTicketPanelState } from "@/app/dashboard/board/hooks/use-ticket-panel-state";
 import { TicketBoardHeader } from "@/app/dashboard/board/components/ticket-board-header";
@@ -18,6 +23,11 @@ type BoardItems = { [key: string]: Ticket[] };
 export const UNASSIGNED_ASSIGNEE_ID = "__unassigned__";
 
 export function TicketBoard() {
+  const params = useParams<{ team?: string }>();
+  const { users, tickets } = useMemo(
+    () => getTeamData(params?.team),
+    [params?.team],
+  );
   const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([]);
 
   const handleAssigneeToggle = (assigneeId: string) => {
@@ -33,8 +43,8 @@ export function TicketBoard() {
       TICKET_STATUS_LIST.map((status) => [status.id, [] as Ticket[]]),
     );
 
-    for (let i = 0; i < TICKETS.length; i++) {
-      const ticket = TICKETS[i];
+    for (let i = 0; i < tickets.length; i++) {
+      const ticket = tickets[i];
       (ticketsGrouped[ticket.statusId] ??= []).push(ticket);
     }
 
@@ -114,7 +124,7 @@ export function TicketBoard() {
         <div className={cn("h-full min-h-0 flex", ticketPanelOpen && "pr-98")}>
           <div className="min-w-0 min-h-0 flex-1 flex flex-col gap-3">
             <TicketBoardHeader
-              users={USERS}
+              users={users}
               selectedAssigneeIds={selectedAssigneeIds}
               onAssigneeToggle={handleAssigneeToggle}
               onAddTicketClick={handleOpenCreateForm}

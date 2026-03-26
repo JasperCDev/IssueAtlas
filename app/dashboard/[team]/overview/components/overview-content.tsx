@@ -4,8 +4,8 @@ import { useState } from "react";
 import {
   SortableWidget,
   type Widget,
-} from "./components/sortable-widget";
-import { SprintOverviewWidget } from "./components/sprint-overview";
+} from "./sortable-widget";
+import { SprintOverviewWidget } from "./sprint-overview";
 
 import {
   DndContext,
@@ -30,7 +30,7 @@ const initialWidgets: Widget[] = [
   { id: "cycle", title: "Cycle Time", w: 2, h: 1 },
 ];
 
-export default function Dashboard() {
+export function OverviewContent() {
   const [widgets, setWidgets] = useState(initialWidgets);
 
   const sensors = useSensors(

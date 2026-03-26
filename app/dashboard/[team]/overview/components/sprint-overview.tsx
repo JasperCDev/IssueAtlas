@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import { useParams } from "next/navigation";
 
 import { AssigneeAvatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  TICKETS,
+  getTeamData,
   TICKET_STATUS_LIST,
   Ticket,
-  USERS,
   User,
 } from "@/lib/mock-data";
 import { cn, derive } from "@/lib/utils";
@@ -40,20 +40,25 @@ function SprintOverviewContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
+  const params = useParams<{ team?: string }>();
+  const { users, tickets } = useMemo(
+    () => getTeamData(params?.team),
+    [params?.team],
+  );
+
   const statusRows = useMemo(() => {
     return TICKET_STATUS_LIST.map((status) => ({
       status,
       ticketGroups: derive(() => {
-        const tickets = TICKETS.filter(
+        const statusTickets = tickets.filter(
           (ticket) => ticket.statusId === status.id,
         );
         const ticketGroups: Array<{ user: User | null; tickets: Ticket[] }> =
           [];
         const seenTicketIds = new Set<string>();
 
-        // Group by assigned users
-        for (const user of USERS) {
-          const userTickets = tickets.filter(
+        for (const user of users) {
+          const userTickets = statusTickets.filter(
             (ticket) => ticket.assignedId === user.id,
           );
           if (userTickets.length > 0) {
@@ -62,8 +67,7 @@ function SprintOverviewContent({
           }
         }
 
-        // Group unassigned tickets (excluding any already seen)
-        const unassignedTickets = tickets.filter(
+        const unassignedTickets = statusTickets.filter(
           (ticket) => ticket.assignedId === null && !seenTicketIds.has(ticket.id),
         );
         if (unassignedTickets.length > 0) {
@@ -73,7 +77,7 @@ function SprintOverviewContent({
         return ticketGroups;
       }),
     }));
-  }, []);
+  }, [tickets, users]);
 
   return (
     <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
