@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { move } from "@dnd-kit/helpers";
 
-import { TICKETS, USERS, type Ticket } from "@/lib/mock-data";
+import { TICKETS, TICKET_STATUS_LIST, USERS, type Ticket } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useTicketPanelState } from "@/app/dashboard/board/hooks/use-ticket-panel-state";
 import { TicketBoardHeader } from "@/app/dashboard/board/components/ticket-board-header";
@@ -29,16 +29,15 @@ export function TicketBoard() {
   };
 
   const [boardItems, setBoardItems] = useState<BoardItems>(() => {
-    const ticketsGrouped: { [key: string]: Ticket[] } = {};
+    const ticketsGrouped: BoardItems = Object.fromEntries(
+      TICKET_STATUS_LIST.map((status) => [status.id, [] as Ticket[]]),
+    );
+
     for (let i = 0; i < TICKETS.length; i++) {
       const ticket = TICKETS[i];
-
-      if (ticketsGrouped[ticket.statusId]) {
-        ticketsGrouped[ticket.statusId].push(ticket);
-        continue;
-      }
-      ticketsGrouped[ticket.statusId] = [ticket];
+      (ticketsGrouped[ticket.statusId] ??= []).push(ticket);
     }
+
     return ticketsGrouped;
   });
 
@@ -79,7 +78,10 @@ export function TicketBoard() {
   const visibleBoardItems = useMemo<BoardItems>(() => {
     if (selectedAssigneeIds.length === 0) return boardItems;
     const result: BoardItems = {};
-    for (const [column, tickets] of Object.entries(boardItems)) {
+
+    for (const status of TICKET_STATUS_LIST) {
+      const column = status.id;
+      const tickets = boardItems[column] ?? [];
       result[column] = tickets.filter((ticket) => {
         if (ticket.assignedId === null) {
           return selectedAssigneeIds.includes(UNASSIGNED_ASSIGNEE_ID);
@@ -119,7 +121,8 @@ export function TicketBoard() {
             />
             <div className="min-w-0 min-h-0 flex-1 overflow-x-auto">
               <div className="flex h-full min-h-0 min-w-max gap-4">
-                {Object.entries(boardItems).map(([column, tickets]) => {
+                {TICKET_STATUS_LIST.map(({ id: column }) => {
+                  const tickets = boardItems[column] ?? [];
                   const visibleIds = new Set(
                     visibleBoardItems[column]?.map((t) => t.id) ?? [],
                   );

@@ -32,6 +32,7 @@ const columns: ColumnDef<Ticket>[] = [
             "bg-blue-500": status.variant === "blue",
             "bg-green-500": status.variant === "green",
             "bg-secondary text-secondary-foreground": status.variant === "neutral",
+            "bg-violet-500": status.variant === "violet",
             "bg-yellow-500": status.variant === "yellow",
           })}
         >

@@ -1,5 +1,5 @@
 
-export type TicketStatusVariants = "neutral" | "blue" | "green" | "yellow";
+export type TicketStatusVariants = "neutral" | "blue" | "green" | "yellow" | "violet";
 
 export type TicketStatus = {
   name: string;
@@ -23,14 +23,19 @@ export const TICKET_STATUS_LIST: Array<TicketStatus> = [
     variant: "blue",
   },
   {
-    name: "DONE",
-    id: '2',
-    variant: "green",
+    name: "PR REVIEW",
+    id: '4',
+    variant: "violet",
   },
   {
     name: "IN TESTING",
     id: '3',
     variant: "yellow",
+  },
+  {
+    name: "DONE",
+    id: '2',
+    variant: "green",
   },
 ];
 
@@ -111,6 +116,42 @@ export const USERS: User[] = [
     firstName: 'Fiona',
     lastName: 'Wilson',
     email: 'fiona.wilson@example.com',
+  },
+  {
+    id: 'u6',
+    firstName: 'Grace',
+    lastName: 'Taylor',
+    email: 'grace.taylor@example.com',
+  },
+  {
+    id: 'u7',
+    firstName: 'Henry',
+    lastName: 'Moore',
+    email: 'henry.moore@example.com',
+  },
+  {
+    id: 'u8',
+    firstName: 'Isla',
+    lastName: 'Anderson',
+    email: 'isla.anderson@example.com',
+  },
+  {
+    id: 'u9',
+    firstName: 'Jack',
+    lastName: 'Thomas',
+    email: 'jack.thomas@example.com',
+  },
+  {
+    id: 'u10',
+    firstName: 'Maya',
+    lastName: 'Martinez',
+    email: 'maya.martinez@example.com',
+  },
+  {
+    id: 'u11',
+    firstName: 'Noah',
+    lastName: 'Garcia',
+    email: 'noah.garcia@example.com',
   }
 ];
 
@@ -242,18 +283,18 @@ const BASE_TICKETS: Ticket[] = [
     title: "Implement sprint goal field",
     description: "Add a dedicated goal input to the sprint creation form.",
     priority: 1,
-    statusId: "1",
+    statusId: "0",
     assignedId: null,
     dueDate: new Date("2026-04-07"),
     type: "Story",
   },
-  // IN TESTING
+  // PR REVIEW
   {
     id: "t56",
     title: "Add sprint velocity chart",
     description: "Plot completed story points per sprint to surface velocity trends.",
     priority: 2,
-    statusId: "3",
+    statusId: "4",
     assignedId: 'u0',
     dueDate: new Date("2026-04-05"),
     type: "Epic",
@@ -263,7 +304,7 @@ const BASE_TICKETS: Ticket[] = [
     title: "Create cumulative flow diagram",
     description: "Visualise the flow of tickets through each status over time.",
     priority: 1,
-    statusId: "3",
+    statusId: "4",
     assignedId: 'u1',
     dueDate: new Date("2026-04-12"),
     type: "Task",
@@ -273,11 +314,12 @@ const BASE_TICKETS: Ticket[] = [
     title: "Fix drag-over column highlight",
     description: "Column highlight flickers when dragging a card over its own column.",
     priority: 2,
-    statusId: "3",
+    statusId: "4",
     assignedId: 'u2',
     dueDate: new Date("2026-04-04"),
     type: "Bug",
   },
+  // IN TESTING
   {
     id: "t61",
     title: "Add sprint capacity planning",
@@ -293,7 +335,7 @@ const BASE_TICKETS: Ticket[] = [
     title: "Add board column reordering",
     description: "Allow users to drag and rearrange board columns to match their workflow.",
     priority: 1,
-    statusId: "3",
+    statusId: "0",
     assignedId: null,
     dueDate: new Date("2026-04-13"),
     type: "Story",
@@ -374,23 +416,113 @@ const BASE_TICKETS: Ticket[] = [
     title: "Fix drag-drop on mobile",
     description: "Touch drag does not initiate consistently on iOS Safari.",
     priority: 3,
-    statusId: "2",
+    statusId: "0",
     assignedId: null,
     dueDate: new Date("2026-04-03"),
     type: "Bug",
   },
 ];
 
+const STATUS_IDS_IN_ORDER = TICKET_STATUS_LIST.map((status) => status.id);
+
+const TICKET_COPY_CONFIGS = [
+  { idOffset: 1000, label: "Copy 2", statusShift: 1, assigneeShift: 1, fillUnassigned: true, unassignEvery: 0 },
+  { idOffset: 2000, label: "Copy 3", statusShift: 0, assigneeShift: 2, fillUnassigned: false, unassignEvery: 6 },
+  { idOffset: 3000, label: "Copy 4", statusShift: -1, assigneeShift: 3, fillUnassigned: true, unassignEvery: 0 },
+  { idOffset: 4000, label: "Copy 5", statusShift: 1, assigneeShift: -1, fillUnassigned: false, unassignEvery: 5 },
+  { idOffset: 5000, label: "Copy 6", statusShift: 2, assigneeShift: 2, fillUnassigned: true, unassignEvery: 7 },
+] as const;
+
+function getShiftedStatusId(statusId: string, steps: number) {
+  const currentIndex = STATUS_IDS_IN_ORDER.indexOf(statusId);
+
+  if (currentIndex === -1) {
+    return statusId;
+  }
+
+  const nextIndex = Math.min(
+    Math.max(currentIndex + steps, 0),
+    STATUS_IDS_IN_ORDER.length - 1,
+  );
+
+  return STATUS_IDS_IN_ORDER[nextIndex] ?? statusId;
+}
+
+function getShiftedAssignedId(
+  assignedId: string | null,
+  ticketIndex: number,
+  config: (typeof TICKET_COPY_CONFIGS)[number],
+) {
+  if (assignedId === null) {
+    if (!config.fillUnassigned) {
+      return null;
+    }
+
+    return USERS[(ticketIndex + Math.abs(config.assigneeShift)) % USERS.length]?.id ?? null;
+  }
+
+  if (config.unassignEvery > 0 && ticketIndex % config.unassignEvery === 0) {
+    return null;
+  }
+
+  const currentIndex = USERS.findIndex((user) => user.id === assignedId);
+
+  if (currentIndex === -1) {
+    return assignedId;
+  }
+
+  const nextIndex =
+    (currentIndex + config.assigneeShift + USERS.length * 2) % USERS.length;
+
+  return USERS[nextIndex]?.id ?? assignedId;
+}
+
+function getShiftedDueDate(
+  dueDate: Date | null,
+  copyIndex: number,
+  ticketIndex: number,
+) {
+  if (!dueDate) {
+    return null;
+  }
+
+  const nextDueDate = new Date(dueDate);
+  nextDueDate.setDate(nextDueDate.getDate() + copyIndex * 2 + (ticketIndex % 3));
+  return nextDueDate;
+}
+
+function normalizeStatusIdForAssignment(statusId: string, assignedId: string | null) {
+  if (assignedId === null) {
+    return STATUS_MAP_BY_NAME.TODO.id;
+  }
+
+  return statusId;
+}
+
 export const TICKETS: Ticket[] = [
   ...BASE_TICKETS,
-  ...BASE_TICKETS.map((ticket, index) => ({
-    ...ticket,
-    id: `t${1000 + index}`,
-    title: `${ticket.title} (Copy 2)`,
-  })),
-  ...BASE_TICKETS.map((ticket, index) => ({
-    ...ticket,
-    id: `t${2000 + index}`,
-    title: `${ticket.title} (Copy 3)`,
-  })),
+  ...TICKET_COPY_CONFIGS.flatMap((config, copyIndex) =>
+    BASE_TICKETS.map((ticket, ticketIndex) => {
+      const statusAdjustment =
+        (ticketIndex + copyIndex) % 8 === 0
+          ? -1
+          : (ticketIndex + copyIndex) % 5 === 0
+            ? 1
+            : 0;
+
+      const assignedId = getShiftedAssignedId(ticket.assignedId, ticketIndex, config);
+
+      return {
+        ...ticket,
+        id: `t${config.idOffset + ticketIndex}`,
+        title: `${ticket.title} (${config.label})`,
+        statusId: normalizeStatusIdForAssignment(
+          getShiftedStatusId(ticket.statusId, config.statusShift + statusAdjustment),
+          assignedId,
+        ),
+        assignedId,
+        dueDate: getShiftedDueDate(ticket.dueDate, copyIndex + 1, ticketIndex),
+      };
+    }),
+  ),
 ];
