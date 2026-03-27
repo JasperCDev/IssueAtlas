@@ -9,8 +9,15 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { RiArrowDownLine, RiArrowUpLine } from "@remixicon/react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -36,14 +43,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="rounded-lg border border-border/50">
-      <table className="w-full text-sm">
-        <thead>
+      <Table>
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="border-b border-border/50">
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th
+                <TableHead
                   key={header.id}
-                  className="h-10 px-3 text-left font-medium text-foreground/80 bg-muted/30"
+                  className="bg-muted/30 px-3 text-foreground/80"
                 >
                   {/* Support clicking for sorting if isSortingEnabled */}
                   {header.column.columnDef.header ? (
@@ -80,39 +87,34 @@ export function DataTable<TData, TValue>({
                       )}
                     </div>
                   ) : null}
-                </th>
+                </TableHead>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody>
+        </TableHeader>
+        <TableBody>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className={cn(
-                  "border-b border-border/50 hover:bg-muted/50 transition-colors",
-                )}
-              >
+              <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 align-middle">
+                  <TableCell key={cell.id} className="px-3 py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td
+            <TableRow>
+              <TableCell
                 colSpan={columns.length}
                 className="h-24 text-center text-muted-foreground"
               >
                 No results.
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
