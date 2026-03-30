@@ -57,12 +57,7 @@ export function BoardItem({
       >
         <p className="mb-4 text-start">{ticket.title}</p>
         <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-row gap-2 items-center">
-            <BoardItemAssignee users={USERS} assignedId={ticket.assignedId} />
-            <BoardItemPriority priority={ticket.priority} />
-            <BoardItemDueDate ticket={ticket} />
-          </div>
-          <Badge variant="secondary">
+          <Badge variant="secondary" size="lg">
             {ticket.id.toUpperCase()}
             {switchMap(ticket.type, {
               Bug: <RiBug2Line />,
@@ -71,6 +66,11 @@ export function BoardItem({
               Epic: <RiEmphasis />,
             })}
           </Badge>
+          <div className="flex flex-row gap-2 items-center">
+            <BoardItemAssignee users={USERS} assignedId={ticket.assignedId} />
+            <BoardItemPriority priority={ticket.priority} />
+            <BoardItemDueDate ticket={ticket} />
+          </div>
         </div>
       </div>
     </div>

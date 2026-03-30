@@ -141,11 +141,13 @@ function getAssigneeDisplayText(user: AssigneeAvatarUser, size: "default" | "sm"
 function AssigneeAvatar({
   user,
   size = "default",
+  title,
   className,
   fallbackClassName,
 }: {
   user?: AssigneeAvatarUser | null;
   size?: "default" | "sm" | "lg" | "xs";
+  title?: string | null;
   className?: string;
   fallbackClassName?: string;
 }) {
@@ -160,9 +162,10 @@ function AssigneeAvatar({
   const fullName = user
     ? `${user.firstName} ${user.lastName}`.trim()
     : "Unassigned";
+  const resolvedTitle = title === undefined ? fullName : title ?? undefined;
 
   return (
-    <Avatar size={size} className={className} title={fullName}>
+    <Avatar size={size} className={className} title={resolvedTitle}>
       {user ? (
         <AvatarFallback userId={user.id} className={fallbackClassName}>
           {getAssigneeDisplayText(user, size)}
