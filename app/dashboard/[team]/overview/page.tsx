@@ -1,12 +1,13 @@
-"use client";
-
-import { useParams } from "next/navigation";
 import { resolveTeamId } from "@/lib/mock-data";
-import { OverviewContent } from "./components/overview-content";
+import { OverviewContentClient } from "./components/overview-content-client";
 
-export default function TeamOverviewPage() {
-  const params = useParams<{ team?: string }>();
-  const teamId = resolveTeamId(params?.team);
+export default async function TeamOverviewPage({
+  params,
+}: {
+  params: Promise<{ team: string }>;
+}) {
+  const { team } = await params;
+  const teamId = resolveTeamId(team);
 
-  return <OverviewContent key={`overview-${teamId}`} />;
+  return <OverviewContentClient key={`overview-${teamId}`} />;
 }
