@@ -108,7 +108,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider className="h-svh overflow-hidden">
       <DashboardSidebar />
-      <SidebarInset className="p-4 min-w-0 h-svh overflow-hidden bg-background flex flex-col">
+      <SidebarInset className="p-4 pt-0 min-w-0 h-svh overflow-hidden bg-background flex flex-col">
         <header className="flex h-14 shrink-0 items-center gap-2">
           <SidebarTrigger />
           <div className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden">
