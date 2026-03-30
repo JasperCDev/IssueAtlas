@@ -18,6 +18,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
 export function DashboardSidebar() {
@@ -49,25 +52,31 @@ export function DashboardSidebar() {
           <SidebarGroupLabel className="h-6 text-[10px]">Teams</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {TEAM_LIST.map((team) => {
-                const href = `/dashboard/${team.id}/overview`;
-                const isTeamActive = pathname.startsWith(`/dashboard/${team.id}`);
+              <SidebarMenuItem>
+                <SidebarMenuButton size="sm">
+                  <RiTeamLine />
+                  <span>Teams</span>
+                </SidebarMenuButton>
+                <SidebarMenuSub>
+                  {TEAM_LIST.map((team) => {
+                    const href = `/dashboard/${team.id}/overview`;
+                    const isTeamActive = pathname.startsWith(`/dashboard/${team.id}`);
 
-                return (
-                  <SidebarMenuItem key={team.id}>
-                    <SidebarMenuButton
-                      size="sm"
-                      isActive={isTeamActive}
-                      render={(props) => (
-                        <Link href={href} {...props}>
-                          <RiTeamLine />
-                          <span>{team.name}</span>
-                        </Link>
-                      )}
-                    />
-                  </SidebarMenuItem>
-                );
-              })}
+                    return (
+                      <SidebarMenuSubItem key={team.id}>
+                        <SidebarMenuSubButton
+                          isActive={isTeamActive}
+                          render={(props) => (
+                            <Link href={href} {...props}>
+                              <span>{team.name}</span>
+                            </Link>
+                          )}
+                        />
+                      </SidebarMenuSubItem>
+                    );
+                  })}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

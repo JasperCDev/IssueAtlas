@@ -38,11 +38,11 @@ function getColumns(users: User[]): ColumnDef<Ticket>[] {
         return (
           <Badge
             className={cn({
-              "bg-blue-500": status.variant === "blue",
-              "bg-green-500": status.variant === "green",
+              "bg-chart-1 text-primary-foreground": status.variant === "blue",
+              "bg-success text-primary-foreground": status.variant === "green",
               "bg-secondary text-secondary-foreground": status.variant === "neutral",
-              "bg-violet-500": status.variant === "violet",
-              "bg-yellow-500": status.variant === "yellow",
+              "bg-chart-3 text-primary-foreground": status.variant === "violet",
+              "bg-chart-4 text-primary-foreground": status.variant === "yellow",
             })}
           >
             {status.name}

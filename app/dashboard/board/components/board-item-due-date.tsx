@@ -42,7 +42,7 @@ export function BoardItemDueDate({ ticket }: { ticket: Ticket }) {
       return "";
     }
     if (ticket.statusId === STATUS_MAP_BY_NAME["DONE"].id) {
-      return "text-green-700";
+      return "text-success";
     }
     const isPastDue = isBefore(
       startOfDay(selectedDueDate),

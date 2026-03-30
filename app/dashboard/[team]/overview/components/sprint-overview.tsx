@@ -97,15 +97,15 @@ function SprintOverviewContent({
               className={cn(
                 "flex h-full min-h-0 flex-col gap-1 rounded-lg p-2 pb-0",
                 status.variant === "blue" &&
-                  "bg-blue-500/5 dark:bg-blue-500/10",
+                  "bg-chart-1/6",
                 status.variant === "green" &&
-                  "bg-green-500/5 dark:bg-green-500/10",
+                  "bg-success/6",
                 status.variant === "neutral" &&
-                  "bg-secondary/50 dark:bg-secondary/70",
+                  "bg-secondary/28",
                 status.variant === "violet" &&
-                  "bg-violet-500/5 dark:bg-violet-500/10",
+                  "bg-chart-3/6",
                 status.variant === "yellow" &&
-                  "bg-yellow-500/5 dark:bg-yellow-500/10",
+                  "bg-chart-4/6",
               )}
             >
               <Badge
@@ -114,15 +114,15 @@ function SprintOverviewContent({
                 className={cn(
                   "w-fit mb-1 p-1 h-4",
                   status.variant === "blue" &&
-                    "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                    "border-chart-1/30 bg-chart-1/15 text-chart-1",
                   status.variant === "green" &&
-                    "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400",
+                    "border-success/30 bg-success/15 text-success",
                   status.variant === "neutral" &&
                     "border-border bg-muted/40 text-muted-foreground",
                   status.variant === "violet" &&
-                    "border-violet-500/20 bg-violet-500/10 text-violet-600 dark:text-violet-400",
+                    "border-chart-3/30 bg-chart-3/15 text-chart-3",
                   status.variant === "yellow" &&
-                    "border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
+                    "border-chart-4/30 bg-chart-4/15 text-chart-4",
                 )}
               >
                 {status.name}

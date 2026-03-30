@@ -8,16 +8,16 @@ import { cn, mapStringToNumber } from "@/lib/utils";
 
 // Define a palette of background colors
 const AVATAR_COLORS = [
-  "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
-  "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
-  "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-  "bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
-  "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-  "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
-  "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  "bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300",
-  "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300",
-  "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
+  "bg-primary/20 text-primary",
+  "bg-success/20 text-success",
+  "bg-warning/25 text-warning",
+  "bg-destructive/20 text-destructive",
+  "bg-chart-1/20 text-chart-1",
+  "bg-chart-2/20 text-chart-2",
+  "bg-chart-3/20 text-chart-3",
+  "bg-chart-4/20 text-chart-4",
+  "bg-chart-5/20 text-chart-5",
+  "bg-primary/15 text-chart-3",
 ];
 
 function Avatar({

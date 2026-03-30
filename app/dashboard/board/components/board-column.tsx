@@ -35,11 +35,11 @@ export function BoardColumn({
 
         isActiveDropTarget
           ? {
-              "bg-blue-500/5 dark:bg-blue-500/10": status.variant === "blue",
-              "bg-green-500/5 dark:bg-green-500/10": status.variant === "green",
-              "bg-secondary/50 dark:bg-secondary/70": status.variant === "neutral",
-              "bg-violet-500/5 dark:bg-violet-500/10": status.variant === "violet",
-              "bg-yellow-500/5 dark:bg-yellow-500/10": status.variant === "yellow",
+              "bg-chart-1/6": status.variant === "blue",
+              "bg-success/6": status.variant === "green",
+              "bg-secondary/28": status.variant === "neutral",
+              "bg-chart-3/6": status.variant === "violet",
+              "bg-chart-4/6": status.variant === "yellow",
             }
           : {},
       )}
@@ -49,11 +49,11 @@ export function BoardColumn({
           size="lg"
           variant="outline"
           className={cn("", {
-            "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400": status.variant === "blue",
-            "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400": status.variant === "green",
+            "border-chart-1/30 bg-chart-1/15 text-chart-1": status.variant === "blue",
+            "border-success/30 bg-success/15 text-success": status.variant === "green",
             "border-border bg-muted/40 text-muted-foreground": status.variant === "neutral",
-            "border-violet-500/20 bg-violet-500/10 text-violet-600 dark:text-violet-400": status.variant === "violet",
-            "border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400": status.variant === "yellow",
+            "border-chart-3/30 bg-chart-3/15 text-chart-3": status.variant === "violet",
+            "border-chart-4/30 bg-chart-4/15 text-chart-4": status.variant === "yellow",
           })}
         >
           {status.name}
