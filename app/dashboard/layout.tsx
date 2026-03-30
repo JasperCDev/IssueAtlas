@@ -108,8 +108,8 @@ export default function DashboardLayout({
   return (
     <SidebarProvider className="h-svh overflow-hidden">
       <DashboardSidebar />
-      <SidebarInset className="min-w-0 h-svh overflow-hidden bg-background flex flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-2 px-4">
+      <SidebarInset className="p-4 min-w-0 h-svh overflow-hidden bg-background flex flex-col">
+        <header className="flex h-14 shrink-0 items-center gap-2">
           <SidebarTrigger />
           <div className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden">
             <Tabs value={section}>
@@ -137,7 +137,7 @@ export default function DashboardLayout({
             </Tabs>
           </div>
         </header>
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 pt-0">{children}</div>
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

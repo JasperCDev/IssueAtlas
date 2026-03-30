@@ -1,6 +1,11 @@
 "use client";
 
-import { RiMoonLine, RiSparklingLine, RiSunLine, RiTeamLine } from "@remixicon/react";
+import {
+  RiMoonLine,
+  RiSparklingLine,
+  RiSunLine,
+  RiTeamLine,
+} from "@remixicon/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -38,10 +43,13 @@ export function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <span className="flex size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                <RiSparklingLine size={16} />
+              <span className="flex flex-row gap-1 items-center">
+                <RiSparklingLine size={36} className="w-5! h-5! text-primary" />
+
+                <h1 className="font-bold group-data-[collapsible=icon]:hidden text-xl">
+                  Issue<span className="text-primary">Atlas</span>
+                </h1>
               </span>
-              <span className="font-semibold group-data-[collapsible=icon]:hidden">Pulse</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -49,7 +57,9 @@ export function DashboardSidebar() {
 
       <SidebarContent className="gap-3">
         <SidebarGroup className="py-0">
-          <SidebarGroupLabel className="h-6 text-[10px]">Teams</SidebarGroupLabel>
+          <SidebarGroupLabel className="h-6 text-[10px]">
+            Teams
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -60,7 +70,9 @@ export function DashboardSidebar() {
                 <SidebarMenuSub>
                   {TEAM_LIST.map((team) => {
                     const href = `/dashboard/${team.id}/overview`;
-                    const isTeamActive = pathname.startsWith(`/dashboard/${team.id}`);
+                    const isTeamActive = pathname.startsWith(
+                      `/dashboard/${team.id}`,
+                    );
 
                     return (
                       <SidebarMenuSubItem key={team.id}>
