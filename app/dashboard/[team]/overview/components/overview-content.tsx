@@ -1,11 +1,17 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useState } from "react";
 import {
-  SortableWidget,
   type Widget,
 } from "./sortable-widget";
 import { SprintOverviewWidget } from "./sprint-overview";
+import {
+  BlockedIssuesWidget,
+  CycleTimeWidget,
+  MyTasksWidget,
+  TeamVelocityWidget,
+} from "./team-dashboard-widgets";
 
 import {
   DndContext,
@@ -22,12 +28,24 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 
-const initialWidgets: Widget[] = [
-  { id: "sprint", title: "Sprint Overview", w: 2, h: 1 },
-  { id: "tasks", title: "My Tasks", w: 1, h: 2 },
-  { id: "velocity", title: "Team Velocity", w: 1, h: 1 },
-  { id: "blocked", title: "Blocked Issues", w: 1, h: 1 },
-  { id: "cycle", title: "Cycle Time", w: 2, h: 1 },
+const WIDGET_COMPONENTS = {
+  sprint: SprintOverviewWidget,
+  activity: MyTasksWidget,
+  velocity: TeamVelocityWidget,
+  blocked: BlockedIssuesWidget,
+  cycle: CycleTimeWidget,
+} satisfies Record<string, ComponentType<{ widget: Widget }>>;
+
+type DashboardWidget = Widget & {
+  component: keyof typeof WIDGET_COMPONENTS;
+};
+
+const initialWidgets: DashboardWidget[] = [
+  { id: "sprint", title: "Sprint Overview", w:2, h: 1, component: "sprint" },
+  { id: "tasks", title: "Recent Activity", w: 1, h: 2, component: "activity" },
+  { id: "velocity", title: "Sprint Velocity", w: 1, h: 1, component: "velocity" },
+  { id: "blocked", title: "Blocked Issues", w: 1, h: 1, component: "blocked" },
+  { id: "cycle", title: "Cycle Time", w: 2, h: 1, component: "cycle" },
 ];
 
 export function OverviewContent() {
@@ -62,13 +80,11 @@ export function OverviewContent() {
           className="grid gap-4 auto-rows-[260px]
           grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-1"
         >
-          {widgets.map((widget) =>
-            widget.id === "sprint" ? (
-              <SprintOverviewWidget key={widget.id} widget={widget} />
-            ) : (
-              <SortableWidget key={widget.id} widget={widget} />
-            ),
-          )}
+          {widgets.map((widget) => {
+            const WidgetComponent = WIDGET_COMPONENTS[widget.component];
+
+            return <WidgetComponent key={widget.id} widget={widget} />;
+          })}
         </div>
       </SortableContext>
     </DndContext>

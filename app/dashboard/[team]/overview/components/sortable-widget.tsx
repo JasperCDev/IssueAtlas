@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export type Widget = {
   id: string;
   title: string;
-  w: 1 | 2;
+  w: 1 | 2 | 3 | 4;
   h: 1 | 2;
 };
 
@@ -29,6 +29,8 @@ export type SortableWidgetComponentProps<TWidget extends Widget = Widget> = {
 const COL_SPAN_CLASS: Record<Widget["w"], string> = {
   1: "col-span-1",
   2: "col-span-2",
+  3: "col-span-1 sm:col-span-2 lg:col-span-3",
+  4: "col-span-full",
 };
 
 const ROW_SPAN_CLASS: Record<Widget["h"], string> = {

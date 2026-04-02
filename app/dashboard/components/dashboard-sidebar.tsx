@@ -42,15 +42,13 @@ export function DashboardSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <span className="flex flex-row gap-1 items-center">
-                <RiSparklingLine size={36} className="w-5! h-5! text-primary" />
+            <span className="flex flex-row gap-1 items-center">
+              <RiSparklingLine size={36} className="w-5! h-5! text-primary" />
 
-                <h1 className="font-bold group-data-[collapsible=icon]:hidden text-xl">
-                  Issue<span className="text-primary">Atlas</span>
-                </h1>
-              </span>
-            </SidebarMenuButton>
+              <h1 className="font-bold group-data-[collapsible=icon]:hidden text-2xl">
+                Issue<span className="text-primary">Atlas</span>
+              </h1>
+            </span>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

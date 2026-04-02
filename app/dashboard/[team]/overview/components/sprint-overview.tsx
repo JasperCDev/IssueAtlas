@@ -11,7 +11,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getTeamData, TICKET_STATUS_LIST, Ticket, User } from "@/lib/mock-data";
+import {
+  getTeamData,
+  STATUS_MAP_BY_NAME,
+  TICKET_STATUS_LIST,
+  Ticket,
+  User,
+} from "@/lib/mock-data";
 import { cn, derive } from "@/lib/utils";
 import { BoardItemPreview } from "@/app/dashboard/board/components/board-item-preview";
 
@@ -37,6 +43,7 @@ function groupTicketsByUser(
 
   return groups;
 }
+
 
 function SprintOverviewContent({
   widget,
@@ -84,13 +91,15 @@ function SprintOverviewContent({
 
   return (
     <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
-      <TooltipProvider delay={300}>
-        <div
-          className="grid h-full gap-2 grid-cols-5 w-full"
-          style={{
-            gridTemplateColumns: `repeat(${statusRows.length}, minmax(0, 1fr))`,
-          }}
-        >
+      <TooltipProvider>
+        <div className="flex min-h-0 w-full flex-1 flex-col gap-2">
+
+          <div
+            className="grid min-h-0 flex-1 gap-2 grid-cols-5 w-full"
+            style={{
+              gridTemplateColumns: `repeat(${statusRows.length}, minmax(0, 1fr))`,
+            }}
+          >
           {statusRows.map(({ status, ticketGroups }) => (
             <div
               key={status.id}
@@ -101,7 +110,7 @@ function SprintOverviewContent({
                 status.variant === "green" &&
                   "bg-success/6",
                 status.variant === "neutral" &&
-                  "bg-secondary/28",
+                  "bg-secondary/45 ring-1 ring-border/50",
                 status.variant === "violet" &&
                   "bg-chart-3/6",
                 status.variant === "yellow" &&
@@ -118,7 +127,7 @@ function SprintOverviewContent({
                   status.variant === "green" &&
                     "border-success/30 bg-success/15 text-success",
                   status.variant === "neutral" &&
-                    "border-border bg-muted/40 text-muted-foreground",
+                    "border-border/80 bg-muted/70 text-foreground/80",
                   status.variant === "violet" &&
                     "border-chart-3/30 bg-chart-3/15 text-chart-3",
                   status.variant === "yellow" &&
@@ -166,6 +175,7 @@ function SprintOverviewContent({
               </div>
             </div>
           ))}
+          </div>
         </div>
       </TooltipProvider>
     </SortableWidgetCard>

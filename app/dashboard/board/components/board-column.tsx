@@ -37,7 +37,7 @@ export function BoardColumn({
           ? {
               "bg-chart-1/6": status.variant === "blue",
               "bg-success/6": status.variant === "green",
-              "bg-secondary/28": status.variant === "neutral",
+              "bg-secondary/45 ring-1 ring-border/50": status.variant === "neutral",
               "bg-chart-3/6": status.variant === "violet",
               "bg-chart-4/6": status.variant === "yellow",
             }
@@ -51,7 +51,7 @@ export function BoardColumn({
           className={cn("", {
             "border-chart-1/30 bg-chart-1/15 text-chart-1": status.variant === "blue",
             "border-success/30 bg-success/15 text-success": status.variant === "green",
-            "border-border bg-muted/40 text-muted-foreground": status.variant === "neutral",
+            "border-border/80 bg-muted/70 text-foreground/80": status.variant === "neutral",
             "border-chart-3/30 bg-chart-3/15 text-chart-3": status.variant === "violet",
             "border-chart-4/30 bg-chart-4/15 text-chart-4": status.variant === "yellow",
           })}
