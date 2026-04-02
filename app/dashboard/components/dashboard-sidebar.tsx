@@ -16,9 +16,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -54,42 +51,38 @@ export function DashboardSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="gap-3">
-        <SidebarGroup className="py-0">
-          <SidebarGroupLabel className="h-6 text-[10px]">
-            Teams
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton size="sm">
-                  <RiTeamLine />
-                  <span>Teams</span>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  {TEAM_LIST.map((team) => {
-                    const href = `/dashboard/${team.id}/overview`;
-                    const isTeamActive = pathname.startsWith(
-                      `/dashboard/${team.id}`,
-                    );
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="sm"
+              className="pointer-events-none cursor-default font-medium text-sidebar-foreground hover:bg-transparent hover:text-sidebar-foreground active:bg-transparent active:text-sidebar-foreground focus-visible:ring-0 data-open:hover:bg-transparent data-open:hover:text-sidebar-foreground"
+            >
+              <RiTeamLine className="text-sidebar-foreground" />
+              <span>Teams</span>
+            </SidebarMenuButton>
+            <SidebarMenuSub>
+              {TEAM_LIST.map((team) => {
+                const href = `/dashboard/${team.id}/overview`;
+                const isTeamActive = pathname.startsWith(
+                  `/dashboard/${team.id}`,
+                );
 
-                    return (
-                      <SidebarMenuSubItem key={team.id}>
-                        <SidebarMenuSubButton
-                          isActive={isTeamActive}
-                          render={(props) => (
-                            <Link href={href} {...props}>
-                              <span>{team.name}</span>
-                            </Link>
-                          )}
-                        />
-                      </SidebarMenuSubItem>
-                    );
-                  })}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                return (
+                  <SidebarMenuSubItem key={team.id}>
+                    <SidebarMenuSubButton
+                      isActive={isTeamActive}
+                      render={(props) => (
+                        <Link href={href} {...props}>
+                          <span>{team.name}</span>
+                        </Link>
+                      )}
+                    />
+                  </SidebarMenuSubItem>
+                );
+              })}
+            </SidebarMenuSub>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
 
       <SidebarFooter>
