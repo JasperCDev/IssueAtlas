@@ -26,7 +26,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DEFAULT_TEAM_ID, TEAM_LIST } from "@/lib/mock-data";
+import { DEFAULT_PROJECT_ID, PROJECT_LIST } from "@/lib/mock-data";
 import { DashboardSidebar } from "./components/dashboard-sidebar";
 
 export default function DashboardLayout({
@@ -35,10 +35,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const dashboardIndex = segments.indexOf("dashboard");
-  const maybeTeam = segments[dashboardIndex + 1];
-  const isTeamRoute = TEAM_LIST.some((team) => team.id === maybeTeam);
-  const teamId = isTeamRoute ? maybeTeam! : DEFAULT_TEAM_ID;
-  const section = isTeamRoute
+  const maybeProject = segments[dashboardIndex + 1];
+  const isProjectRoute = PROJECT_LIST.some((project) => project.id === maybeProject);
+  const projectId = isProjectRoute ? maybeProject! : DEFAULT_PROJECT_ID;
+  const section = isProjectRoute
     ? (segments[dashboardIndex + 2] ?? "overview")
     : (segments[dashboardIndex + 1] ?? "overview");
 
@@ -46,21 +46,21 @@ export default function DashboardLayout({
     () => ({
       overview: {
         value: "overview",
-        href: `/dashboard/${teamId}/overview`,
+        href: `/dashboard/${projectId}/overview`,
         label: "Overview",
       },
       board: {
         value: "board",
-        href: `/dashboard/${teamId}/board`,
+        href: `/dashboard/${projectId}/board`,
         label: "Board",
       },
       list: {
         value: "list",
-        href: `/dashboard/${teamId}/list`,
+        href: `/dashboard/${projectId}/list`,
         label: "List",
       },
     }),
-    [teamId],
+    [projectId],
   );
 
   const [tabOrder, setTabOrder] = useState<Array<keyof typeof tabItems>>([

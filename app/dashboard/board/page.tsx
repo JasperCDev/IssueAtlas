@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { DEFAULT_TEAM_ID } from "@/lib/mock-data";
+import { DEFAULT_PROJECT_ID } from "@/lib/mock-data";
 
 export default function LegacyBoardPage() {
-  redirect(`/dashboard/${DEFAULT_TEAM_ID}/board`);
+  redirect(`/dashboard/${DEFAULT_PROJECT_ID}/board`);
 }

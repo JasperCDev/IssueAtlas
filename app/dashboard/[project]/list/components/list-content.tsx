@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
 import {
-  getTeamData,
+  getProjectData,
   PRIORITY_MAP,
   STATUS_MAP_BY_ID,
   type Ticket,
@@ -97,17 +97,17 @@ function getColumns(users: User[]): ColumnDef<Ticket>[] {
 }
 
 export function ListContent() {
-  const params = useParams<{ team?: string }>();
-  const { team, users, tickets } = useMemo(
-    () => getTeamData(params?.team),
-    [params?.team],
+  const params = useParams<{ project?: string }>();
+  const { project, users, tickets } = useMemo(
+    () => getProjectData(params?.project),
+    [params?.project],
   );
   const columns = useMemo(() => getColumns(users), [users]);
 
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold">{team.name} Tickets</h1>
+        <h1 className="text-2xl font-bold">{project.name} Tickets</h1>
         <p className="text-sm text-muted-foreground">Manage current sprint project tickets</p>
       </div>
       <DataTable columns={columns} data={tickets} />

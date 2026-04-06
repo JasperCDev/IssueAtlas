@@ -1,4 +1,3 @@
-
 export type TicketStatusVariants = "neutral" | "blue" | "green" | "yellow" | "violet";
 
 export type TicketStatus = {
@@ -7,39 +6,37 @@ export type TicketStatus = {
   variant: TicketStatusVariants;
 };
 
-
 export const TICKET_TYPES = ["Bug", "Task", "Story", "Epic"] as const;
-
 
 export const TICKET_STATUS_LIST: Array<TicketStatus> = [
   {
     name: "TODO",
-    id: '0',
+    id: "0",
     variant: "neutral",
   },
   {
     name: "IN PROGRESS",
-    id: '1',
+    id: "1",
     variant: "blue",
   },
   {
     name: "PR REVIEW",
-    id: '4',
+    id: "4",
     variant: "violet",
   },
   {
     name: "IN TESTING",
-    id: '3',
+    id: "3",
     variant: "yellow",
   },
   {
     name: "DONE",
-    id: '2',
+    id: "2",
     variant: "green",
   },
 ];
 
-export const STATUS_MAP_BY_ID = TICKET_STATUS_LIST.reduce<{ [key: string]: TicketStatus }>(
+export const STATUS_MAP_BY_ID = TICKET_STATUS_LIST.reduce<Record<string, TicketStatus>>(
   (acc, curr) => {
     acc[curr.id] = curr;
     return acc;
@@ -47,7 +44,7 @@ export const STATUS_MAP_BY_ID = TICKET_STATUS_LIST.reduce<{ [key: string]: Ticke
   {},
 );
 
-export const STATUS_MAP_BY_NAME = TICKET_STATUS_LIST.reduce<{ [key: string]: TicketStatus }>(
+export const STATUS_MAP_BY_NAME = TICKET_STATUS_LIST.reduce<Record<string, TicketStatus>>(
   (acc, curr) => {
     acc[curr.name] = curr;
     return acc;
@@ -55,11 +52,50 @@ export const STATUS_MAP_BY_NAME = TICKET_STATUS_LIST.reduce<{ [key: string]: Tic
   {},
 );
 
-export const PRIORITY_MAP: { [key: number]: string } = {
+export const PRIORITY_MAP: Record<number, string> = {
   0: "Low",
   1: "Medium",
   2: "High",
   3: "Critical",
+};
+
+export type User = {
+  firstName: string;
+  lastName: string;
+  id: string;
+  email: string;
+};
+
+const PROJECT_DEFINITIONS = [
+  { id: "atlas", code: "ATL", name: "Atlas Platform" },
+  { id: "orbit", code: "ORB", name: "Orbit Commerce" },
+  { id: "pulse", code: "PLS", name: "Pulse Growth" },
+  { id: "forge", code: "FRG", name: "Forge Mobile" },
+  { id: "harbor", code: "HBR", name: "Harbor Infrastructure" },
+  { id: "lumen", code: "LMN", name: "Lumen AI" },
+  { id: "shield", code: "SHD", name: "Shield Security" },
+  { id: "northstar", code: "NTH", name: "Northstar Support" },
+  { id: "summit", code: "SUM", name: "Summit Revenue Ops" },
+  { id: "studio", code: "STD", name: "Studio Experience" },
+] as const;
+
+export type ProjectId = (typeof PROJECT_DEFINITIONS)[number]["id"];
+
+export type Sprint = {
+  id: string;
+  name: string;
+  start: Date;
+  end: Date;
+  projectId: ProjectId;
+  isCurrent: boolean;
+};
+
+export type Project = {
+  id: ProjectId;
+  name: string;
+  code: string;
+  userIds: string[];
+  currentSprintId: string;
 };
 
 export type Ticket = {
@@ -70,2030 +106,408 @@ export type Ticket = {
   statusId: string;
   assignedId: string | null;
   dueDate: Date | null;
-  type: typeof TICKET_TYPES[number];
+  type: (typeof TICKET_TYPES)[number];
+  projectId: ProjectId;
+  sprintId: string;
 };
 
-export type User = {
-  firstName: string;
-  lastName: string;
-  id: string;
-  email: string;
+const USERS_PER_PROJECT = 4;
+const PAST_SPRINT_COUNT = 10;
+const TOTAL_SPRINTS_PER_PROJECT = PAST_SPRINT_COUNT + 1;
+const SPRINT_LENGTH_DAYS = 14;
+
+const FIRST_NAMES = [
+  "Alice",
+  "Bob",
+  "Charlie",
+  "Diana",
+  "Ethan",
+  "Fiona",
+  "Grace",
+  "Henry",
+  "Isla",
+  "Jack",
+  "Maya",
+  "Noah",
+  "Olivia",
+  "Liam",
+  "Ava",
+  "Mason",
+  "Sophia",
+  "Lucas",
+  "Amelia",
+  "Logan",
+  "Harper",
+  "Elijah",
+  "Evelyn",
+  "James",
+  "Aria",
+  "Benjamin",
+  "Scarlett",
+  "Daniel",
+  "Chloe",
+  "Matthew",
+  "Layla",
+  "Jackson",
+  "Nora",
+  "Sebastian",
+  "Zoe",
+  "Leo",
+  "Mila",
+  "Owen",
+  "Hazel",
+  "Julian",
+] as const;
+
+const LAST_NAMES = [
+  "Smith",
+  "Johnson",
+  "Brown",
+  "Miller",
+  "Davis",
+  "Wilson",
+  "Taylor",
+  "Moore",
+  "Anderson",
+  "Thomas",
+  "Martinez",
+  "Garcia",
+] as const;
+
+const ACTIONS = [
+  "Refine",
+  "Stabilize",
+  "Automate",
+  "Unify",
+  "Expand",
+  "Instrument",
+  "Simplify",
+  "Secure",
+  "Reduce",
+  "Rebalance",
+  "Scale",
+  "Accelerate",
+] as const;
+
+const SUBJECTS = [
+  "workflow orchestration",
+  "issue intake",
+  "release controls",
+  "handoff visibility",
+  "reporting pipeline",
+  "permission model",
+  "search accuracy",
+  "status transitions",
+  "automation rules",
+  "approval routing",
+  "signal quality",
+  "delivery tracing",
+] as const;
+
+const FOCUS_AREAS = [
+  "cross-project planning",
+  "sprint delivery",
+  "customer escalation handling",
+  "design system adoption",
+  "deployment safety",
+  "board usability",
+  "forecast accuracy",
+  "operational analytics",
+  "self-serve reporting",
+  "on-call resilience",
+] as const;
+
+const SURFACES = [
+  "board interactions",
+  "list workflows",
+  "automation coverage",
+  "release checklists",
+  "dependency mapping",
+  "execution telemetry",
+  "capacity planning",
+  "intake triage",
+  "exception handling",
+  "review loops",
+] as const;
+
+const OUTCOMES = [
+  "faster triage",
+  "clearer ownership",
+  "lower rollover risk",
+  "more predictable throughput",
+  "better stakeholder visibility",
+  "less manual cleanup",
+  "tighter sprint scope",
+  "cleaner handoffs",
+  "safer launches",
+  "higher signal quality",
+] as const;
+
+function startOfDay(value: Date): Date {
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
 
-export type TeamId = "frontend" | "backend" | "design";
-
-export type Team = {
-  id: TeamId;
-  name: string;
-  userIds: string[];
-};
-
-export const TEAM_LIST: Team[] = [
-  {
-    id: "frontend",
-    name: "Frontend",
-    userIds: ["u0", "u1", "u2", "u3"],
-  },
-  {
-    id: "backend",
-    name: "Backend",
-    userIds: ["u4", "u5", "u6", "u7"],
-  },
-  {
-    id: "design",
-    name: "Design",
-    userIds: ["u8", "u9", "u10", "u11"],
-  },
-];
-
-export const DEFAULT_TEAM_ID: TeamId = "frontend";
-
-export const USERS: User[] = [
-  {
-    id: 'u0',
-    firstName: 'Alice',
-    lastName: 'Smith',
-    email: 'alice.smith@example.com',
-  },
-  {
-    id: 'u1',
-    firstName: 'Bob',
-    lastName: 'Johnson',
-    email: 'bob.johnson@example.com',
-  },
-  {
-    id: 'u2',
-    firstName: 'Charlie',
-    lastName: 'Brown',
-    email: 'charlie.brown@example.com',
-  },
-  {
-    id: 'u3',
-    firstName: 'Diana',
-    lastName: 'Miller',
-    email: 'diana.miller@example.com',
-  },
-  {
-    id: 'u4',
-    firstName: 'Ethan',
-    lastName: 'Davis',
-    email: 'ethan.davis@example.com',
-  },
-  {
-    id: 'u5',
-    firstName: 'Fiona',
-    lastName: 'Wilson',
-    email: 'fiona.wilson@example.com',
-  },
-  {
-    id: 'u6',
-    firstName: 'Grace',
-    lastName: 'Taylor',
-    email: 'grace.taylor@example.com',
-  },
-  {
-    id: 'u7',
-    firstName: 'Henry',
-    lastName: 'Moore',
-    email: 'henry.moore@example.com',
-  },
-  {
-    id: 'u8',
-    firstName: 'Isla',
-    lastName: 'Anderson',
-    email: 'isla.anderson@example.com',
-  },
-  {
-    id: 'u9',
-    firstName: 'Jack',
-    lastName: 'Thomas',
-    email: 'jack.thomas@example.com',
-  },
-  {
-    id: 'u10',
-    firstName: 'Maya',
-    lastName: 'Martinez',
-    email: 'maya.martinez@example.com',
-  },
-  {
-    id: 'u11',
-    firstName: 'Noah',
-    lastName: 'Garcia',
-    email: 'noah.garcia@example.com',
-  }
-];
-
-export const BASE_TICKETS: Ticket[] = [
-  // TODO
-  {
-    id: "t0",
-    title: "Set up board drag interactions",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-18"),
-    type: "Bug",
-  },
-  {
-    id: "t1",
-    title: "Design ticket card layout",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-21"),
-    type: "Task",
-  },
-  {
-    id: "t2",
-    title: "Add keyboard drag support",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "0",
-    assignedId: null,
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t7",
-    title: "Add ticket filtering by assignee",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-24"),
-    type: "Story",
-  },
-  {
-    id: "t14",
-    title: "Add swimlane grouping",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-29"),
-    type: "Story",
-  },
-  {
-    id: "t15",
-    title: "Create ticket dependency links",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-30"),
-    type: "Story",
-  },
-  {
-    id: "t24",
-    title: "Improve ticket search relevance",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-02"),
-    type: "Bug",
-  },
-  // IN PROGRESS
-  {
-    id: "t3",
-    title: "Optimize drag performance",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-16"),
-    type: "Task",
-  },
-  {
-    id: "t9",
-    title: "Support quick ticket creation",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-22"),
-    type: "Story",
-  },
-  {
-    id: "t17",
-    title: "Enable card estimate points",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-25"),
-    type: "Task",
-  },
-  {
-    id: "t18",
-    title: "Highlight overdue tickets",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-12"),
-    type: "Bug",
-  },
-  {
-    id: "t26",
-    title: "Build sprint burnup widget",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-01"),
-    type: "Epic",
-  },
-  {
-    id: "t42",
-    title: "Implement sprint goal field",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-07"),
-    type: "Story",
-  },
-  // PR REVIEW
-  {
-    id: "t56",
-    title: "Add sprint velocity chart",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u0',
-    dueDate: new Date("2026-04-05"),
-    type: "Epic",
-  },
-  {
-    id: "t58",
-    title: "Create cumulative flow diagram",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u1',
-    dueDate: new Date("2026-04-12"),
-    type: "Task",
-  },
-  {
-    id: "t59",
-    title: "Fix drag-over column highlight",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-04"),
-    type: "Bug",
-  },
-  // IN TESTING
-  {
-    id: "t61",
-    title: "Add sprint capacity planning",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-16"),
-    type: "Epic",
-  },
-  {
-    id: "t62",
-    title: "Add board column reordering",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-13"),
-    type: "Story",
-  },
-  {
-    id: "t66",
-    title: "Add board usage analytics",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-15"),
-    type: "Story",
-  },
-  {
-    id: "t68",
-    title: "Add board guest access",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-20"),
-    type: "Story",
-  },
-  // DONE
-  {
-    id: "t5",
-    title: "Define board column settings",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "2",
-    assignedId: 'u1',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t6",
-    title: "Implement ticket badges",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-10"),
-    type: "Task",
-  },
-  {
-    id: "t12",
-    title: "Implement activity timeline",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-11"),
-    type: "Story",
-  },
-  {
-    id: "t21",
-    title: "Add ticket watchlist",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-20"),
-    type: "Story",
-  },
-  {
-    id: "t74",
-    title: "Fix status badge color flash",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-01"),
-    type: "Bug",
-  },
-  {
-    id: "t77",
-    title: "Fix drag-drop on mobile",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-03"),
-    type: "Bug",
-  },
-];
-
-export const TICKETS: Ticket[] = [
-  {
-    id: "t0",
-    title: "Set up board drag interactions",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-17"),
-    type: "Bug",
-  },
-  {
-    id: "t1",
-    title: "Design ticket card layout",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-20"),
-    type: "Task",
-  },
-  {
-    id: "t2",
-    title: "Add keyboard drag support",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "0",
-    assignedId: null,
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t7",
-    title: "Add ticket filtering by assignee",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-23"),
-    type: "Story",
-  },
-  {
-    id: "t14",
-    title: "Add swimlane grouping",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-28"),
-    type: "Story",
-  },
-  {
-    id: "t15",
-    title: "Create ticket dependency links",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-29"),
-    type: "Story",
-  },
-  {
-    id: "t24",
-    title: "Improve ticket search relevance",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-01"),
-    type: "Bug",
-  },
-  {
-    id: "t3",
-    title: "Optimize drag performance",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-15"),
-    type: "Task",
-  },
-  {
-    id: "t9",
-    title: "Support quick ticket creation",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-21"),
-    type: "Story",
-  },
-  {
-    id: "t17",
-    title: "Enable card estimate points",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-24"),
-    type: "Task",
-  },
-  {
-    id: "t18",
-    title: "Highlight overdue tickets",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-11"),
-    type: "Bug",
-  },
-  {
-    id: "t26",
-    title: "Build sprint burnup widget",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-31"),
-    type: "Epic",
-  },
-  {
-    id: "t42",
-    title: "Implement sprint goal field",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-06"),
-    type: "Story",
-  },
-  {
-    id: "t56",
-    title: "Add sprint velocity chart",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u0',
-    dueDate: new Date("2026-04-04"),
-    type: "Epic",
-  },
-  {
-    id: "t58",
-    title: "Create cumulative flow diagram",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u1',
-    dueDate: new Date("2026-04-11"),
-    type: "Task",
-  },
-  {
-    id: "t59",
-    title: "Fix drag-over column highlight",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-03"),
-    type: "Bug",
-  },
-  {
-    id: "t61",
-    title: "Add sprint capacity planning",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-15"),
-    type: "Epic",
-  },
-  {
-    id: "t62",
-    title: "Add board column reordering",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-12"),
-    type: "Story",
-  },
-  {
-    id: "t66",
-    title: "Add board usage analytics",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-14"),
-    type: "Story",
-  },
-  {
-    id: "t68",
-    title: "Add board guest access",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-19"),
-    type: "Story",
-  },
-  {
-    id: "t5",
-    title: "Define board column settings",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "2",
-    assignedId: 'u1',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t6",
-    title: "Implement ticket badges",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-09"),
-    type: "Task",
-  },
-  {
-    id: "t12",
-    title: "Implement activity timeline",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-10"),
-    type: "Story",
-  },
-  {
-    id: "t21",
-    title: "Add ticket watchlist",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-19"),
-    type: "Story",
-  },
-  {
-    id: "t74",
-    title: "Fix status badge color flash",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-31"),
-    type: "Bug",
-  },
-  {
-    id: "t77",
-    title: "Fix drag-drop on mobile",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-02"),
-    type: "Bug",
-  },
-  {
-    id: "t1000",
-    title: "Set up board drag interactions (Copy 2)",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-19"),
-    type: "Bug",
-  },
-  {
-    id: "t1001",
-    title: "Design ticket card layout (Copy 2)",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-23"),
-    type: "Task",
-  },
-  {
-    id: "t1002",
-    title: "Add keyboard drag support (Copy 2)",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t1003",
-    title: "Add ticket filtering by assignee (Copy 2)",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-25"),
-    type: "Story",
-  },
-  {
-    id: "t1004",
-    title: "Add swimlane grouping (Copy 2)",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "1",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-31"),
-    type: "Story",
-  },
-  {
-    id: "t1005",
-    title: "Create ticket dependency links (Copy 2)",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-02"),
-    type: "Story",
-  },
-  {
-    id: "t1006",
-    title: "Improve ticket search relevance (Copy 2)",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-03"),
-    type: "Bug",
-  },
-  {
-    id: "t1007",
-    title: "Optimize drag performance (Copy 2)",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-18"),
-    type: "Task",
-  },
-  {
-    id: "t1008",
-    title: "Support quick ticket creation (Copy 2)",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-25"),
-    type: "Story",
-  },
-  {
-    id: "t1009",
-    title: "Enable card estimate points (Copy 2)",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u6',
-    dueDate: new Date("2026-03-26"),
-    type: "Task",
-  },
-  {
-    id: "t1010",
-    title: "Highlight overdue tickets (Copy 2)",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-14"),
-    type: "Bug",
-  },
-  {
-    id: "t1011",
-    title: "Build sprint burnup widget (Copy 2)",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-04"),
-    type: "Epic",
-  },
-  {
-    id: "t1012",
-    title: "Implement sprint goal field (Copy 2)",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u1',
-    dueDate: new Date("2026-04-08"),
-    type: "Story",
-  },
-  {
-    id: "t1013",
-    title: "Add sprint velocity chart (Copy 2)",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "3",
-    assignedId: 'u1',
-    dueDate: new Date("2026-04-07"),
-    type: "Epic",
-  },
-  {
-    id: "t1014",
-    title: "Create cumulative flow diagram (Copy 2)",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-15"),
-    type: "Task",
-  },
-  {
-    id: "t1015",
-    title: "Fix drag-over column highlight (Copy 2)",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-05"),
-    type: "Bug",
-  },
-  {
-    id: "t1016",
-    title: "Add sprint capacity planning (Copy 2)",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-18"),
-    type: "Epic",
-  },
-  {
-    id: "t1017",
-    title: "Add board column reordering (Copy 2)",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-16"),
-    type: "Story",
-  },
-  {
-    id: "t1018",
-    title: "Add board usage analytics (Copy 2)",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-16"),
-    type: "Story",
-  },
-  {
-    id: "t1019",
-    title: "Add board guest access (Copy 2)",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-22"),
-    type: "Story",
-  },
-  {
-    id: "t1020",
-    title: "Define board column settings (Copy 2)",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t1021",
-    title: "Implement ticket badges (Copy 2)",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-11"),
-    type: "Task",
-  },
-  {
-    id: "t1022",
-    title: "Implement activity timeline (Copy 2)",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-13"),
-    type: "Story",
-  },
-  {
-    id: "t1023",
-    title: "Add ticket watchlist (Copy 2)",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u6',
-    dueDate: new Date("2026-03-23"),
-    type: "Story",
-  },
-  {
-    id: "t1024",
-    title: "Fix status badge color flash (Copy 2)",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-02"),
-    type: "Bug",
-  },
-  {
-    id: "t1025",
-    title: "Fix drag-drop on mobile (Copy 2)",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "4",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-05"),
-    type: "Bug",
-  },
-  {
-    id: "t2000",
-    title: "Set up board drag interactions (Copy 3)",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-21"),
-    type: "Bug",
-  },
-  {
-    id: "t2001",
-    title: "Design ticket card layout (Copy 3)",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-25"),
-    type: "Task",
-  },
-  {
-    id: "t2002",
-    title: "Add keyboard drag support (Copy 3)",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "0",
-    assignedId: null,
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t2003",
-    title: "Add ticket filtering by assignee (Copy 3)",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-27"),
-    type: "Story",
-  },
-  {
-    id: "t2004",
-    title: "Add swimlane grouping (Copy 3)",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-02"),
-    type: "Story",
-  },
-  {
-    id: "t2005",
-    title: "Create ticket dependency links (Copy 3)",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-04"),
-    type: "Story",
-  },
-  {
-    id: "t2006",
-    title: "Improve ticket search relevance (Copy 3)",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-05"),
-    type: "Bug",
-  },
-  {
-    id: "t2007",
-    title: "Optimize drag performance (Copy 3)",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-20"),
-    type: "Task",
-  },
-  {
-    id: "t2008",
-    title: "Support quick ticket creation (Copy 3)",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-27"),
-    type: "Story",
-  },
-  {
-    id: "t2009",
-    title: "Enable card estimate points (Copy 3)",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u7',
-    dueDate: new Date("2026-03-28"),
-    type: "Task",
-  },
-  {
-    id: "t2010",
-    title: "Highlight overdue tickets (Copy 3)",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-16"),
-    type: "Bug",
-  },
-  {
-    id: "t2011",
-    title: "Build sprint burnup widget (Copy 3)",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-06"),
-    type: "Epic",
-  },
-  {
-    id: "t2012",
-    title: "Implement sprint goal field (Copy 3)",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-10"),
-    type: "Story",
-  },
-  {
-    id: "t2013",
-    title: "Add sprint velocity chart (Copy 3)",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-09"),
-    type: "Epic",
-  },
-  {
-    id: "t2014",
-    title: "Create cumulative flow diagram (Copy 3)",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-17"),
-    type: "Task",
-  },
-  {
-    id: "t2015",
-    title: "Fix drag-over column highlight (Copy 3)",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-07"),
-    type: "Bug",
-  },
-  {
-    id: "t2016",
-    title: "Add sprint capacity planning (Copy 3)",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-20"),
-    type: "Epic",
-  },
-  {
-    id: "t2017",
-    title: "Add board column reordering (Copy 3)",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-18"),
-    type: "Story",
-  },
-  {
-    id: "t2018",
-    title: "Add board usage analytics (Copy 3)",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-18"),
-    type: "Story",
-  },
-  {
-    id: "t2019",
-    title: "Add board guest access (Copy 3)",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-24"),
-    type: "Story",
-  },
-  {
-    id: "t2020",
-    title: "Define board column settings (Copy 3)",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t2021",
-    title: "Implement ticket badges (Copy 3)",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: new Date("2026-03-13"),
-    type: "Task",
-  },
-  {
-    id: "t2022",
-    title: "Implement activity timeline (Copy 3)",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-15"),
-    type: "Story",
-  },
-  {
-    id: "t2023",
-    title: "Add ticket watchlist (Copy 3)",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "3",
-    assignedId: 'u7',
-    dueDate: new Date("2026-03-25"),
-    type: "Story",
-  },
-  {
-    id: "t2024",
-    title: "Fix status badge color flash (Copy 3)",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-04"),
-    type: "Bug",
-  },
-  {
-    id: "t2025",
-    title: "Fix drag-drop on mobile (Copy 3)",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-07"),
-    type: "Bug",
-  },
-  {
-    id: "t3000",
-    title: "Set up board drag interactions (Copy 4)",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-23"),
-    type: "Bug",
-  },
-  {
-    id: "t3001",
-    title: "Design ticket card layout (Copy 4)",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-27"),
-    type: "Task",
-  },
-  {
-    id: "t3002",
-    title: "Add keyboard drag support (Copy 4)",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "0",
-    assignedId: 'u5',
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t3003",
-    title: "Add ticket filtering by assignee (Copy 4)",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-29"),
-    type: "Story",
-  },
-  {
-    id: "t3004",
-    title: "Add swimlane grouping (Copy 4)",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "0",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-04"),
-    type: "Story",
-  },
-  {
-    id: "t3005",
-    title: "Create ticket dependency links (Copy 4)",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-06"),
-    type: "Story",
-  },
-  {
-    id: "t3006",
-    title: "Improve ticket search relevance (Copy 4)",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u8',
-    dueDate: new Date("2026-04-07"),
-    type: "Bug",
-  },
-  {
-    id: "t3007",
-    title: "Optimize drag performance (Copy 4)",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-22"),
-    type: "Task",
-  },
-  {
-    id: "t3008",
-    title: "Support quick ticket creation (Copy 4)",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-29"),
-    type: "Story",
-  },
-  {
-    id: "t3009",
-    title: "Enable card estimate points (Copy 4)",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u8',
-    dueDate: new Date("2026-03-30"),
-    type: "Task",
-  },
-  {
-    id: "t3010",
-    title: "Highlight overdue tickets (Copy 4)",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "0",
-    assignedId: 'u6',
-    dueDate: new Date("2026-03-18"),
-    type: "Bug",
-  },
-  {
-    id: "t3011",
-    title: "Build sprint burnup widget (Copy 4)",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "0",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-08"),
-    type: "Epic",
-  },
-  {
-    id: "t3012",
-    title: "Implement sprint goal field (Copy 4)",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-12"),
-    type: "Story",
-  },
-  {
-    id: "t3013",
-    title: "Add sprint velocity chart (Copy 4)",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-11"),
-    type: "Epic",
-  },
-  {
-    id: "t3014",
-    title: "Create cumulative flow diagram (Copy 4)",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-19"),
-    type: "Task",
-  },
-  {
-    id: "t3015",
-    title: "Fix drag-over column highlight (Copy 4)",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-09"),
-    type: "Bug",
-  },
-  {
-    id: "t3016",
-    title: "Add sprint capacity planning (Copy 4)",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "4",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-22"),
-    type: "Epic",
-  },
-  {
-    id: "t3017",
-    title: "Add board column reordering (Copy 4)",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "0",
-    assignedId: 'u8',
-    dueDate: new Date("2026-04-20"),
-    type: "Story",
-  },
-  {
-    id: "t3018",
-    title: "Add board usage analytics (Copy 4)",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-20"),
-    type: "Story",
-  },
-  {
-    id: "t3019",
-    title: "Add board guest access (Copy 4)",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u8',
-    dueDate: new Date("2026-04-26"),
-    type: "Story",
-  },
-  {
-    id: "t3020",
-    title: "Define board column settings (Copy 4)",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "3",
-    assignedId: 'u4',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t3021",
-    title: "Implement ticket badges (Copy 4)",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-15"),
-    type: "Task",
-  },
-  {
-    id: "t3022",
-    title: "Implement activity timeline (Copy 4)",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "4",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-17"),
-    type: "Story",
-  },
-  {
-    id: "t3023",
-    title: "Add ticket watchlist (Copy 4)",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u8',
-    dueDate: new Date("2026-03-27"),
-    type: "Story",
-  },
-  {
-    id: "t3024",
-    title: "Fix status badge color flash (Copy 4)",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-06"),
-    type: "Bug",
-  },
-  {
-    id: "t3025",
-    title: "Fix drag-drop on mobile (Copy 4)",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "0",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-09"),
-    type: "Bug",
-  },
-  {
-    id: "t4000",
-    title: "Set up board drag interactions (Copy 5)",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-25"),
-    type: "Bug",
-  },
-  {
-    id: "t4001",
-    title: "Design ticket card layout (Copy 5)",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u0',
-    dueDate: new Date("2026-03-29"),
-    type: "Task",
-  },
-  {
-    id: "t4002",
-    title: "Add keyboard drag support (Copy 5)",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "0",
-    assignedId: null,
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t4003",
-    title: "Add ticket filtering by assignee (Copy 5)",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "1",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-31"),
-    type: "Story",
-  },
-  {
-    id: "t4004",
-    title: "Add swimlane grouping (Copy 5)",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-06"),
-    type: "Story",
-  },
-  {
-    id: "t4005",
-    title: "Create ticket dependency links (Copy 5)",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-08"),
-    type: "Story",
-  },
-  {
-    id: "t4006",
-    title: "Improve ticket search relevance (Copy 5)",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-09"),
-    type: "Bug",
-  },
-  {
-    id: "t4007",
-    title: "Optimize drag performance (Copy 5)",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "3",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-24"),
-    type: "Task",
-  },
-  {
-    id: "t4008",
-    title: "Support quick ticket creation (Copy 5)",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u11',
-    dueDate: new Date("2026-03-31"),
-    type: "Story",
-  },
-  {
-    id: "t4009",
-    title: "Enable card estimate points (Copy 5)",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-01"),
-    type: "Task",
-  },
-  {
-    id: "t4010",
-    title: "Highlight overdue tickets (Copy 5)",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-20"),
-    type: "Bug",
-  },
-  {
-    id: "t4011",
-    title: "Build sprint burnup widget (Copy 5)",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-10"),
-    type: "Epic",
-  },
-  {
-    id: "t4012",
-    title: "Implement sprint goal field (Copy 5)",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-14"),
-    type: "Story",
-  },
-  {
-    id: "t4013",
-    title: "Add sprint velocity chart (Copy 5)",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u11',
-    dueDate: new Date("2026-04-13"),
-    type: "Epic",
-  },
-  {
-    id: "t4014",
-    title: "Create cumulative flow diagram (Copy 5)",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u0',
-    dueDate: new Date("2026-04-21"),
-    type: "Task",
-  },
-  {
-    id: "t4015",
-    title: "Fix drag-over column highlight (Copy 5)",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-11"),
-    type: "Bug",
-  },
-  {
-    id: "t4016",
-    title: "Add sprint capacity planning (Copy 5)",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-24"),
-    type: "Epic",
-  },
-  {
-    id: "t4017",
-    title: "Add board column reordering (Copy 5)",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-22"),
-    type: "Story",
-  },
-  {
-    id: "t4018",
-    title: "Add board usage analytics (Copy 5)",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-22"),
-    type: "Story",
-  },
-  {
-    id: "t4019",
-    title: "Add board guest access (Copy 5)",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-28"),
-    type: "Story",
-  },
-  {
-    id: "t4020",
-    title: "Define board column settings (Copy 5)",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "0",
-    assignedId: null,
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t4021",
-    title: "Implement ticket badges (Copy 5)",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u11',
-    dueDate: new Date("2026-03-17"),
-    type: "Task",
-  },
-  {
-    id: "t4022",
-    title: "Implement activity timeline (Copy 5)",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u1',
-    dueDate: new Date("2026-03-19"),
-    type: "Story",
-  },
-  {
-    id: "t4023",
-    title: "Add ticket watchlist (Copy 5)",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-29"),
-    type: "Story",
-  },
-  {
-    id: "t4024",
-    title: "Fix status badge color flash (Copy 5)",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-08"),
-    type: "Bug",
-  },
-  {
-    id: "t4025",
-    title: "Fix drag-drop on mobile (Copy 5)",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-11"),
-    type: "Bug",
-  },
-  {
-    id: "t5000",
-    title: "Set up board drag interactions (Copy 6)",
-    description: "Add baseline drag-and-drop behavior for board tickets.",
-    priority: 0,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-27"),
-    type: "Bug",
-  },
-  {
-    id: "t5001",
-    title: "Design ticket card layout (Copy 6)",
-    description: "Create Jira-style card structure with metadata and labels.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u3',
-    dueDate: new Date("2026-03-31"),
-    type: "Task",
-  },
-  {
-    id: "t5002",
-    title: "Add keyboard drag support (Copy 6)",
-    description: "Support accessible keyboard movement between columns.",
-    priority: null,
-    statusId: "4",
-    assignedId: 'u4',
-    dueDate: null,
-    type: "Story",
-  },
-  {
-    id: "t5003",
-    title: "Add ticket filtering by assignee (Copy 6)",
-    description: "Filter board cards based on the selected team member.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-02"),
-    type: "Story",
-  },
-  {
-    id: "t5004",
-    title: "Add swimlane grouping (Copy 6)",
-    description: "Group board tickets by assignee to improve visual scanning.",
-    priority: 0,
-    statusId: "1",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-08"),
-    type: "Story",
-  },
-  {
-    id: "t5005",
-    title: "Create ticket dependency links (Copy 6)",
-    description: "Allow tickets to reference blockers and related work items.",
-    priority: 2,
-    statusId: "4",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-10"),
-    type: "Story",
-  },
-  {
-    id: "t5006",
-    title: "Improve ticket search relevance (Copy 6)",
-    description: "Rank title and description matches for better quick-find.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-11"),
-    type: "Bug",
-  },
-  {
-    id: "t5007",
-    title: "Optimize drag performance (Copy 6)",
-    description: "Reduce re-renders while dragging cards across columns.",
-    priority: 2,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-26"),
-    type: "Task",
-  },
-  {
-    id: "t5008",
-    title: "Support quick ticket creation (Copy 6)",
-    description: "Add inline form to create tickets directly in a column.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-02"),
-    type: "Story",
-  },
-  {
-    id: "t5009",
-    title: "Enable card estimate points (Copy 6)",
-    description: "Show and edit story points directly on ticket cards.",
-    priority: 1,
-    statusId: "3",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-03"),
-    type: "Task",
-  },
-  {
-    id: "t5010",
-    title: "Highlight overdue tickets (Copy 6)",
-    description: "Visually emphasize cards that are past their due date.",
-    priority: 3,
-    statusId: "3",
-    assignedId: 'u5',
-    dueDate: new Date("2026-03-22"),
-    type: "Bug",
-  },
-  {
-    id: "t5011",
-    title: "Build sprint burnup widget (Copy 6)",
-    description: "Show completed versus total scope across the active sprint.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-12"),
-    type: "Epic",
-  },
-  {
-    id: "t5012",
-    title: "Implement sprint goal field (Copy 6)",
-    description: "Add a dedicated goal input to the sprint creation form.",
-    priority: 1,
-    statusId: "1",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-16"),
-    type: "Story",
-  },
-  {
-    id: "t5013",
-    title: "Add sprint velocity chart (Copy 6)",
-    description: "Plot completed story points per sprint to surface velocity trends.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u2',
-    dueDate: new Date("2026-04-15"),
-    type: "Epic",
-  },
-  {
-    id: "t5014",
-    title: "Create cumulative flow diagram (Copy 6)",
-    description: "Visualise the flow of tickets through each status over time.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-04-23"),
-    type: "Task",
-  },
-  {
-    id: "t5015",
-    title: "Fix drag-over column highlight (Copy 6)",
-    description: "Column highlight flickers when dragging a card over its own column.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-04-13"),
-    type: "Bug",
-  },
-  {
-    id: "t5016",
-    title: "Add sprint capacity planning (Copy 6)",
-    description: "Define per-user capacity for a sprint and visualise remaining headroom.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-26"),
-    type: "Epic",
-  },
-  {
-    id: "t5017",
-    title: "Add board column reordering (Copy 6)",
-    description: "Allow users to drag and rearrange board columns to match their workflow.",
-    priority: 1,
-    statusId: "4",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-24"),
-    type: "Story",
-  },
-  {
-    id: "t5018",
-    title: "Add board usage analytics (Copy 6)",
-    description: "Track how frequently each column and feature is used by the team.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u5',
-    dueDate: new Date("2026-04-24"),
-    type: "Story",
-  },
-  {
-    id: "t5019",
-    title: "Add board guest access (Copy 6)",
-    description: "Allow external stakeholders to view a board in read-only mode.",
-    priority: 1,
-    statusId: "2",
-    assignedId: 'u7',
-    dueDate: new Date("2026-04-30"),
-    type: "Story",
-  },
-  {
-    id: "t5020",
-    title: "Define board column settings (Copy 6)",
-    description: "Configure WIP limits and column-level automation rules.",
-    priority: null,
-    statusId: "2",
-    assignedId: 'u3',
-    dueDate: null,
-    type: "Task",
-  },
-  {
-    id: "t5021",
-    title: "Implement ticket badges (Copy 6)",
-    description: "Show priority, labels, and ticket key in card header.",
-    priority: 1,
-    statusId: "0",
-    assignedId: null,
-    dueDate: new Date("2026-03-19"),
-    type: "Task",
-  },
-  {
-    id: "t5022",
-    title: "Implement activity timeline (Copy 6)",
-    description: "Display recent card updates and movement history.",
-    priority: 0,
-    statusId: "2",
-    assignedId: 'u4',
-    dueDate: new Date("2026-03-21"),
-    type: "Story",
-  },
-  {
-    id: "t5023",
-    title: "Add ticket watchlist (Copy 6)",
-    description: "Let users follow tickets and receive update notifications.",
-    priority: 2,
-    statusId: "2",
-    assignedId: 'u7',
-    dueDate: new Date("2026-03-31"),
-    type: "Story",
-  },
-  {
-    id: "t5024",
-    title: "Fix status badge color flash (Copy 6)",
-    description: "Status badge briefly renders the wrong colour during hydration.",
-    priority: 3,
-    statusId: "2",
-    assignedId: 'u6',
-    dueDate: new Date("2026-04-10"),
-    type: "Bug",
-  },
-  {
-    id: "t5025",
-    title: "Fix drag-drop on mobile (Copy 6)",
-    description: "Touch drag does not initiate consistently on iOS Safari.",
-    priority: 3,
-    statusId: "4",
-    assignedId: 'u3',
-    dueDate: new Date("2026-04-13"),
-    type: "Bug",
-  },
-];
-
-const TEAM_IDS = TEAM_LIST.map((team) => team.id);
-
-const USER_TEAM_MAP = TEAM_LIST.reduce<Record<string, TeamId>>((acc, team) => {
-  for (const userId of team.userIds) {
-    acc[userId] = team.id;
-  }
-  return acc;
-}, {});
-
-const TEAM_USERS_BY_ID = TEAM_LIST.reduce<Record<TeamId, User[]>>(
-  (acc, team) => {
-    acc[team.id] = USERS.filter((user) => team.userIds.includes(user.id));
-    return acc;
-  },
-  {
-    frontend: [],
-    backend: [],
-    design: [],
-  },
-);
-
-function getTicketNumber(ticketId: string) {
-  const match = /^t(\d+)$/.exec(ticketId);
-  if (!match) {
-    return 0;
-  }
-
-  return Number(match[1]);
+function addDays(value: Date, days: number): Date {
+  const next = new Date(value);
+  next.setDate(next.getDate() + days);
+  return next;
 }
 
-function fallbackTeamIdForTicket(ticketId: string): TeamId {
-  const index = getTicketNumber(ticketId) % TEAM_IDS.length;
-  return TEAM_IDS[index] ?? DEFAULT_TEAM_ID;
-}
+function createRng(seed: number) {
+  let state = seed >>> 0;
 
-function getTeamIdForTicket(ticket: Ticket): TeamId {
-  if (ticket.assignedId && USER_TEAM_MAP[ticket.assignedId]) {
-    return USER_TEAM_MAP[ticket.assignedId];
-  }
-
-  return fallbackTeamIdForTicket(ticket.id);
-}
-
-const TEAM_TICKETS_BY_ID = TICKETS.reduce<Record<TeamId, Ticket[]>>(
-  (acc, ticket) => {
-    const teamId = getTeamIdForTicket(ticket);
-    acc[teamId].push(ticket);
-    return acc;
-  },
-  {
-    frontend: [],
-    backend: [],
-    design: [],
-  },
-);
-
-export function resolveTeamId(teamId: string | undefined): TeamId {
-  if (teamId && TEAM_IDS.includes(teamId as TeamId)) {
-    return teamId as TeamId;
-  }
-
-  return DEFAULT_TEAM_ID;
-}
-
-export function getTeamUsers(teamId: string | undefined): User[] {
-  const resolved = resolveTeamId(teamId);
-  return TEAM_USERS_BY_ID[resolved];
-}
-
-export function getTeamTickets(teamId: string | undefined): Ticket[] {
-  const resolved = resolveTeamId(teamId);
-  return TEAM_TICKETS_BY_ID[resolved];
-}
-
-export function getTeamData(teamId: string | undefined) {
-  const resolved = resolveTeamId(teamId);
-  return {
-    teamId: resolved,
-    team: TEAM_LIST.find((item) => item.id === resolved) ?? TEAM_LIST[0],
-    users: TEAM_USERS_BY_ID[resolved],
-    tickets: TEAM_TICKETS_BY_ID[resolved],
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function createSeed(...parts: number[]): number {
+  let seed = 0x9e3779b9;
+
+  for (const part of parts) {
+    seed ^= part + 0x7f4a7c15 + (seed << 6) + (seed >> 2);
+    seed = Math.imul(seed, 0x85ebca6b) >>> 0;
+  }
+
+  return seed >>> 0;
+}
+
+function randomInt(rng: () => number, min: number, max: number): number {
+  return Math.floor(rng() * (max - min + 1)) + min;
+}
+
+function sample<T>(rng: () => number, items: readonly T[]): T {
+  return items[Math.floor(rng() * items.length)]!;
+}
+
+function buildUserId(projectIndex: number, memberIndex: number): string {
+  return `u${projectIndex * USERS_PER_PROJECT + memberIndex}`;
+}
+
+function extractTicketNumber(ticketId: string): number {
+  const match = /(\d+)$/.exec(ticketId);
+  return match ? Number.parseInt(match[1], 10) : 0;
+}
+
+function createProjectUsers(projectIndex: number): User[] {
+  return Array.from({ length: USERS_PER_PROJECT }, (_, memberIndex) => {
+    const firstName = FIRST_NAMES[projectIndex * USERS_PER_PROJECT + memberIndex]!;
+    const lastName = LAST_NAMES[(projectIndex + memberIndex) % LAST_NAMES.length]!;
+    const id = buildUserId(projectIndex, memberIndex);
+    const email = `${firstName}.${lastName}`.toLowerCase();
+
+    return {
+      id,
+      firstName,
+      lastName,
+      email: `${email}@example.com`,
+    };
+  });
+}
+
+function createProjectSprints(projectId: ProjectId, projectIndex: number): Sprint[] {
+  const currentSprintStart = startOfDay(addDays(new Date(), -(projectIndex % 5)));
+
+  return Array.from({ length: TOTAL_SPRINTS_PER_PROJECT }, (_, sprintIndex) => {
+    const sprintNumber = sprintIndex + 1;
+    const isCurrent = sprintIndex === TOTAL_SPRINTS_PER_PROJECT - 1;
+    const start = addDays(
+      currentSprintStart,
+      (sprintIndex - (TOTAL_SPRINTS_PER_PROJECT - 1)) * SPRINT_LENGTH_DAYS,
+    );
+    const end = addDays(start, SPRINT_LENGTH_DAYS - 1);
+
+    return {
+      id: `${projectId}-sprint-${sprintNumber}`,
+      name: isCurrent ? `Sprint ${sprintNumber} Current` : `Sprint ${sprintNumber}`,
+      start,
+      end,
+      projectId,
+      isCurrent,
+    };
+  });
+}
+
+function createTicketTitle(rng: () => number): string {
+  const action = sample(rng, ACTIONS);
+  const subject = sample(rng, SUBJECTS);
+  const focus = sample(rng, FOCUS_AREAS);
+
+  return `${action} ${subject} for ${focus}`;
+}
+
+function createTicketDescription(rng: () => number, project: Project, sprint: Sprint): string | null {
+  if (rng() < 0.14) {
+    return null;
+  }
+
+  const surface = sample(rng, SURFACES);
+  const outcome = sample(rng, OUTCOMES);
+
+  return `${project.name} work in ${sprint.name.toLowerCase()} focused on ${surface} to drive ${outcome}.`;
+}
+
+function createProjectTickets(project: Project, sprints: Sprint[], projectIndex: number): Ticket[] {
+  return sprints.flatMap((sprint, sprintIndex) => {
+    const rng = createRng(createSeed(projectIndex + 1, sprintIndex + 1, 2026));
+    const baseTicketCount = sprint.isCurrent
+      ? (12 + projectIndex * 8) * 3
+      : (6 + ((projectIndex + sprintIndex) % 5) * 3) * 3;
+    const ticketCount = Math.max(
+      sprint.isCurrent ? 36 : 18,
+      baseTicketCount + randomInt(rng, sprint.isCurrent ? -6 : -4, sprint.isCurrent ? 12 : 8),
+    );
+
+    return Array.from({ length: ticketCount }, (_, ticketIndex) => {
+      const ticketNumber = sprintIndex * 1000 + ticketIndex + 1;
+      const statusRoll = rng();
+      const statusId =
+        statusRoll < 0.22
+          ? STATUS_MAP_BY_NAME.TODO.id
+          : statusRoll < 0.49
+            ? STATUS_MAP_BY_NAME["IN PROGRESS"].id
+            : statusRoll < 0.67
+              ? STATUS_MAP_BY_NAME["PR REVIEW"].id
+              : statusRoll < 0.83
+                ? STATUS_MAP_BY_NAME["IN TESTING"].id
+                : STATUS_MAP_BY_NAME.DONE.id;
+      const assignedId =
+        rng() < 0.16 ? null : sample(rng, project.userIds);
+      const dueDate =
+        rng() < 0.08
+          ? null
+          : statusId === STATUS_MAP_BY_NAME.DONE.id
+            ? addDays(sprint.end, -randomInt(rng, 0, 5))
+            : addDays(sprint.start, randomInt(rng, 1, SPRINT_LENGTH_DAYS + 3));
+
+      return {
+        id: `${project.code}-${String(ticketNumber).padStart(4, "0")}`,
+        title: createTicketTitle(rng),
+        description: createTicketDescription(rng, project, sprint),
+        priority: rng() < 0.1 ? null : randomInt(rng, 0, 3),
+        statusId,
+        assignedId,
+        dueDate,
+        type: sample(rng, TICKET_TYPES),
+        projectId: project.id,
+        sprintId: sprint.id,
+      };
+    });
+  });
+}
+
+const PROJECT_BLUEPRINTS = PROJECT_DEFINITIONS.map((definition, projectIndex) => {
+  const userIds = Array.from({ length: USERS_PER_PROJECT }, (_, memberIndex) =>
+    buildUserId(projectIndex, memberIndex),
+  );
+  const sprints = createProjectSprints(definition.id, projectIndex);
+  const currentSprintId = sprints[sprints.length - 1]!.id;
+
+  return {
+    project: {
+      id: definition.id,
+      name: definition.name,
+      code: definition.code,
+      userIds,
+      currentSprintId,
+    } satisfies Project,
+    sprints,
+  };
+});
+
+export const PROJECT_LIST: Project[] = PROJECT_BLUEPRINTS.map((entry) => entry.project);
+
+export const DEFAULT_PROJECT_ID: ProjectId = PROJECT_LIST[0]!.id;
+
+export const USERS: User[] = PROJECT_BLUEPRINTS.flatMap((_, projectIndex) =>
+  createProjectUsers(projectIndex),
+);
+
+export const SPRINTS: Sprint[] = PROJECT_BLUEPRINTS.flatMap((entry) => entry.sprints);
+
+export const TICKETS: Ticket[] = PROJECT_BLUEPRINTS.flatMap((entry, projectIndex) =>
+  createProjectTickets(entry.project, entry.sprints, projectIndex),
+);
+
+export const BASE_TICKETS: Ticket[] = TICKETS;
+
+const PROJECT_ID_SET = new Set<ProjectId>(PROJECT_LIST.map((project) => project.id));
+
+const PROJECT_USERS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, User[]>>((acc, project) => {
+  acc[project.id] = USERS.filter((user) => project.userIds.includes(user.id));
+  return acc;
+}, {} as Record<ProjectId, User[]>);
+
+const PROJECT_SPRINTS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, Sprint[]>>(
+  (acc, project) => {
+    acc[project.id] = SPRINTS.filter((sprint) => sprint.projectId === project.id);
+    return acc;
+  },
+  {} as Record<ProjectId, Sprint[]>,
+);
+
+const PROJECT_CURRENT_TICKETS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, Ticket[]>>(
+  (acc, project) => {
+    acc[project.id] = TICKETS.filter(
+      (ticket) =>
+        ticket.projectId === project.id && ticket.sprintId === project.currentSprintId,
+    );
+    return acc;
+  },
+  {} as Record<ProjectId, Ticket[]>,
+);
+
+const PROJECT_ALL_TICKETS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, Ticket[]>>(
+  (acc, project) => {
+    acc[project.id] = TICKETS.filter((ticket) => ticket.projectId === project.id);
+    return acc;
+  },
+  {} as Record<ProjectId, Ticket[]>,
+);
+
+export function resolveProjectId(projectId: string | undefined): ProjectId {
+  if (projectId && PROJECT_ID_SET.has(projectId as ProjectId)) {
+    return projectId as ProjectId;
+  }
+
+  return DEFAULT_PROJECT_ID;
+}
+
+export function getProjectUsers(projectId: string | undefined): User[] {
+  const resolved = resolveProjectId(projectId);
+  return PROJECT_USERS_BY_ID[resolved] ?? [];
+}
+
+export function getProjectTickets(projectId: string | undefined): Ticket[] {
+  const resolved = resolveProjectId(projectId);
+  return PROJECT_CURRENT_TICKETS_BY_ID[resolved] ?? [];
+}
+
+export function getProjectAllTickets(projectId: string | undefined): Ticket[] {
+  const resolved = resolveProjectId(projectId);
+  return PROJECT_ALL_TICKETS_BY_ID[resolved] ?? [];
+}
+
+export function getProjectData(projectId: string | undefined) {
+  const resolved = resolveProjectId(projectId);
+  const project = PROJECT_LIST.find((item) => item.id === resolved) ?? PROJECT_LIST[0]!;
+  const sprints = PROJECT_SPRINTS_BY_ID[resolved] ?? [];
+  const currentSprint = sprints.find((sprint) => sprint.id === project.currentSprintId) ?? null;
+
+  return {
+    project,
+    users: PROJECT_USERS_BY_ID[resolved] ?? [],
+    tickets: PROJECT_CURRENT_TICKETS_BY_ID[resolved] ?? [],
+    allTickets: PROJECT_ALL_TICKETS_BY_ID[resolved] ?? [],
+    sprints,
+    currentSprint,
+  };
+}
+
+export function getLatestTicketNumber(ticketIds: string[]): number {
+  return ticketIds.reduce((max, ticketId) => Math.max(max, extractTicketNumber(ticketId)), 0);
 }

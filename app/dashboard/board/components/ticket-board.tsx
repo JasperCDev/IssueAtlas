@@ -6,7 +6,8 @@ import { move } from "@dnd-kit/helpers";
 import { useParams } from "next/navigation";
 
 import {
-  getTeamData,
+  getLatestTicketNumber,
+  getProjectData,
   TICKET_STATUS_LIST,
   type Ticket,
 } from "@/lib/mock-data";
@@ -23,10 +24,10 @@ type BoardItems = { [key: string]: Ticket[] };
 export const UNASSIGNED_ASSIGNEE_ID = "__unassigned__";
 
 export function TicketBoard() {
-  const params = useParams<{ team?: string }>();
-  const { users, tickets } = useMemo(
-    () => getTeamData(params?.team),
-    [params?.team],
+  const params = useParams<{ project?: string }>();
+  const { project, currentSprint, users, tickets, allTickets: projectTickets } = useMemo(
+    () => getProjectData(params?.project),
+    [params?.project],
   );
   const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([]);
 
@@ -59,16 +60,13 @@ export function TicketBoard() {
   const handleCreateTicket = (input: CreateTicketInput) => {
     setBoardItems((current) => {
       const next = { ...current };
-      const maxId = Object.values(current)
-        .flat()
-        .reduce((acc, ticket) => {
-          const match = /^t(\d+)$/.exec(ticket.id);
-          if (!match) return acc;
-          return Math.max(acc, Number(match[1]));
-        }, -1);
+      const maxId = getLatestTicketNumber([
+        ...projectTickets.map((ticket) => ticket.id),
+        ...Object.values(current).flat().map((ticket) => ticket.id),
+      ]);
 
       const newTicket: Ticket = {
-        id: `t${maxId + 1}`,
+        id: `${project.code}-${String(maxId + 1).padStart(4, "0")}`,
         title: input.title,
         description: input.description,
         priority: input.priority,
@@ -76,6 +74,8 @@ export function TicketBoard() {
         assignedId: input.assignedId,
         dueDate: input.dueDate,
         type: input.type,
+        projectId: project.id,
+        sprintId: currentSprint?.id ?? project.currentSprintId,
       };
 
       const targetColumn = next[input.statusId] ?? [];

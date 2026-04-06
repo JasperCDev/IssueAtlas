@@ -3,13 +3,14 @@
 import {
   RiMoonLine,
   RiSparklingLine,
+  RiShapesLine,
   RiSunLine,
-  RiTeamLine,
+  RiFoldersLine,
 } from "@remixicon/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { TEAM_LIST } from "@/lib/mock-data";
+import { PROJECT_LIST } from "@/lib/mock-data";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -57,23 +58,23 @@ export function DashboardSidebar() {
               size="sm"
               className="pointer-events-none cursor-default font-medium text-sidebar-foreground hover:bg-transparent hover:text-sidebar-foreground active:bg-transparent active:text-sidebar-foreground focus-visible:ring-0 data-open:hover:bg-transparent data-open:hover:text-sidebar-foreground"
             >
-              <RiTeamLine className="text-sidebar-foreground" />
-              <span>Teams</span>
+              <RiFoldersLine className="text-sidebar-foreground" />
+              <span>Projects</span>
             </SidebarMenuButton>
             <SidebarMenuSub>
-              {TEAM_LIST.map((team) => {
-                const href = `/dashboard/${team.id}/overview`;
-                const isTeamActive = pathname.startsWith(
-                  `/dashboard/${team.id}`,
+              {PROJECT_LIST.map((project) => {
+                const href = `/dashboard/${project.id}/overview`;
+                const isProjectActive = pathname.startsWith(
+                  `/dashboard/${project.id}`,
                 );
 
                 return (
-                  <SidebarMenuSubItem key={team.id}>
+                  <SidebarMenuSubItem key={project.id}>
                     <SidebarMenuSubButton
-                      isActive={isTeamActive}
+                      isActive={isProjectActive}
                       render={(props) => (
                         <Link href={href} {...props}>
-                          <span>{team.name}</span>
+                          <span>{project.name}</span>
                         </Link>
                       )}
                     />
@@ -81,6 +82,20 @@ export function DashboardSidebar() {
                 );
               })}
             </SidebarMenuSub>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={pathname === "/org-visualizer"}
+              render={(props) => (
+                <Link href="/org-visualizer" {...props}>
+                  <RiShapesLine />
+                  <span className="bg-linear-to-r from-rose-500 via-amber-400 to-cyan-400 bg-clip-text text-transparent">
+                    Org Visualizer
+                  </span>
+                </Link>
+              )}
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>

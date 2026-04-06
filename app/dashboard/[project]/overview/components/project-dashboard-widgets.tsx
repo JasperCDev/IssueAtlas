@@ -17,7 +17,7 @@ import {
 import { AssigneeAvatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  getTeamData,
+  getProjectData,
   PRIORITY_MAP,
   STATUS_MAP_BY_ID,
   STATUS_MAP_BY_NAME,
@@ -31,10 +31,10 @@ import {
   withSortableWidget,
 } from "./sortable-widget";
 
-function useOverviewTeamData() {
-  const params = useParams<{ team?: string }>();
+function useOverviewProjectData() {
+  const params = useParams<{ project?: string }>();
 
-  return useMemo(() => getTeamData(params?.team), [params?.team]);
+  return useMemo(() => getProjectData(params?.project), [params?.project]);
 }
 
 function getTicketSortValue(ticket: Ticket) {
@@ -42,17 +42,22 @@ function getTicketSortValue(ticket: Ticket) {
   return ticket.dueDate.getTime();
 }
 
+function getTicketSequence(ticketId: string) {
+  const match = /(\d+)$/.exec(ticketId);
+  return match ? Number.parseInt(match[1], 10) : 0;
+}
+
 function RecentActivityContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
-  const { users, tickets } = useOverviewTeamData();
+  const { users, allTickets } = useOverviewProjectData();
 
   const recentTickets = useMemo(() => {
-    return [...tickets]
-      .sort((a, b) => Number.parseInt(b.id.slice(1)) - Number.parseInt(a.id.slice(1)))
+    return [...allTickets]
+      .sort((a, b) => getTicketSequence(b.id) - getTicketSequence(a.id))
       .slice(0, 7);
-  }, [tickets]);
+  }, [allTickets]);
 
   const findUser = (id: string | null): User | null => {
     if (!id) return null;
@@ -65,7 +70,7 @@ function RecentActivityContent({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RiHistoryLine size={14} />
-            Team updates
+            Project updates
           </div>
           <Badge variant="secondary" className="h-5 text-xs">
             Last {recentTickets.length}
@@ -108,8 +113,8 @@ function BlockedIssuesContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
-  const { users, tickets } = useOverviewTeamData();
-  const doneStatusId = STATUS_MAP_BY_NAME["DONE"].id;
+  const { users, tickets } = useOverviewProjectData();
+  const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
   const today = startOfDay(new Date());
 
   const blockedTickets = useMemo(() => {
@@ -118,8 +123,7 @@ function BlockedIssuesContent({
         if (ticket.statusId === doneStatusId) return false;
         const isCritical = ticket.priority === 3;
         const isOverdue =
-          ticket.dueDate !== null &&
-          isBefore(startOfDay(ticket.dueDate), today);
+          ticket.dueDate !== null && isBefore(startOfDay(ticket.dueDate), today);
         return isCritical || isOverdue;
       })
       .sort((a, b) => {
@@ -179,33 +183,37 @@ function BlockedIssuesContent({
   );
 }
 
-function TeamVelocityContent({
+function ProjectVelocityContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
-  const { tickets } = useOverviewTeamData();
-  const doneStatusId = STATUS_MAP_BY_NAME["DONE"].id;
-  const today = startOfDay(new Date());
-
-  const currentStart = startOfDay(new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000));
-  const currentEnd = startOfDay(new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000));
-  const lastStart = startOfDay(new Date(currentStart.getTime() - 14 * 24 * 60 * 60 * 1000));
-  const lastEnd = startOfDay(new Date(currentStart.getTime() - 1 * 24 * 60 * 60 * 1000));
-
-  const isInWindow = (dueDate: Date | null, start: Date, end: Date) => {
-    if (!dueDate) return false;
-    const day = startOfDay(dueDate).getTime();
-    return day >= start.getTime() && day <= end.getTime();
-  };
+  const { allTickets, currentSprint, sprints } = useOverviewProjectData();
+  const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
 
   const currentSprintTickets = useMemo(
-    () => tickets.filter((ticket) => isInWindow(ticket.dueDate, currentStart, currentEnd)),
-    [tickets, currentStart, currentEnd],
+    () =>
+      currentSprint
+        ? allTickets.filter((ticket) => ticket.sprintId === currentSprint.id)
+        : [],
+    [allTickets, currentSprint],
   );
 
+  const previousSprint = useMemo(() => {
+    if (!currentSprint) return null;
+
+    return (
+      sprints
+        .filter((sprint) => sprint.start.getTime() < currentSprint.start.getTime())
+        .sort((a, b) => b.start.getTime() - a.start.getTime())[0] ?? null
+    );
+  }, [currentSprint, sprints]);
+
   const lastSprintTickets = useMemo(
-    () => tickets.filter((ticket) => isInWindow(ticket.dueDate, lastStart, lastEnd)),
-    [tickets, lastStart, lastEnd],
+    () =>
+      previousSprint
+        ? allTickets.filter((ticket) => ticket.sprintId === previousSprint.id)
+        : [],
+    [allTickets, previousSprint],
   );
 
   const currentDone = useMemo(
@@ -224,7 +232,6 @@ function TeamVelocityContent({
   const lastCompletionPct = lastTotal === 0 ? 0 : Math.round((lastDone / lastTotal) * 100);
   const doneDelta = currentDone - lastDone;
   const pctDelta = completionPct - lastCompletionPct;
-
   const inFlightCount = currentTotal - currentDone;
 
   const highPriorityInFlight = useMemo(
@@ -292,8 +299,8 @@ function CycleTimeContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
-  const { tickets } = useOverviewTeamData();
-  const doneStatusId = STATUS_MAP_BY_NAME["DONE"].id;
+  const { tickets } = useOverviewProjectData();
+  const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
   const today = startOfDay(new Date());
 
   const activeTickets = useMemo(
@@ -318,9 +325,8 @@ function CycleTimeContent({
 
   const overdueCount = useMemo(
     () =>
-      activeWithDueDate.filter((ticket) =>
-        isBefore(startOfDay(ticket.dueDate as Date), today),
-      ).length,
+      activeWithDueDate.filter((ticket) => isBefore(startOfDay(ticket.dueDate as Date), today))
+        .length,
     [activeWithDueDate, today],
   );
 
@@ -334,10 +340,7 @@ function CycleTimeContent({
   );
 
   const nextDueTickets = useMemo(
-    () =>
-      [...activeWithDueDate]
-        .sort((a, b) => getTicketSortValue(a) - getTicketSortValue(b))
-        .slice(0, 5),
+    () => [...activeWithDueDate].sort((a, b) => getTicketSortValue(a) - getTicketSortValue(b)).slice(0, 5),
     [activeWithDueDate],
   );
 
@@ -404,5 +407,5 @@ function CycleTimeContent({
 
 export const MyTasksWidget = withSortableWidget(RecentActivityContent);
 export const BlockedIssuesWidget = withSortableWidget(BlockedIssuesContent);
-export const TeamVelocityWidget = withSortableWidget(TeamVelocityContent);
+export const ProjectVelocityWidget = withSortableWidget(ProjectVelocityContent);
 export const CycleTimeWidget = withSortableWidget(CycleTimeContent);

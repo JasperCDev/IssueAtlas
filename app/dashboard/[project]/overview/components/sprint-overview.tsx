@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  getTeamData,
+  getProjectData,
   TICKET_STATUS_LIST,
   Ticket,
   User,
@@ -48,10 +48,10 @@ function SprintOverviewContent({
   widget,
   dragHandleProps,
 }: SortableWidgetComponentProps) {
-  const params = useParams<{ team?: string }>();
+  const params = useParams<{ project?: string }>();
   const { users, tickets } = useMemo(
-    () => getTeamData(params?.team),
-    [params?.team],
+    () => getProjectData(params?.project),
+    [params?.project],
   );
 
   const statusRows = useMemo(() => {

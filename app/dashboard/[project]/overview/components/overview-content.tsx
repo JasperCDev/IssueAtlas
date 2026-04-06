@@ -10,8 +10,8 @@ import {
   BlockedIssuesWidget,
   CycleTimeWidget,
   MyTasksWidget,
-  TeamVelocityWidget,
-} from "./team-dashboard-widgets";
+  ProjectVelocityWidget,
+} from "./project-dashboard-widgets";
 
 import {
   DndContext,
@@ -31,7 +31,7 @@ import {
 const WIDGET_COMPONENTS = {
   sprint: SprintOverviewWidget,
   activity: MyTasksWidget,
-  velocity: TeamVelocityWidget,
+  velocity: ProjectVelocityWidget,
   blocked: BlockedIssuesWidget,
   cycle: CycleTimeWidget,
 } satisfies Record<string, ComponentType<{ widget: Widget }>>;
