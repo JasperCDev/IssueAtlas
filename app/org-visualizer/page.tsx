@@ -1,30 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-function drawSquare(canvas: HTMLCanvasElement) {
-  const context = canvas.getContext("2d");
-  if (!context) return;
-
-  const dpr = window.devicePixelRatio || 1;
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  canvas.width = Math.floor(width * dpr);
-  canvas.height = Math.floor(height * dpr);
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
-
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-  context.clearRect(0, 0, width, height);
-  context.fillStyle = "#111111";
-
-  const squareSize = 80;
-  const x = Math.round((width - squareSize) / 2);
-  const y = Math.round((height - squareSize) / 2);
-
-  context.fillRect(x, y, squareSize, squareSize);
-}
+import { CanvasVisualizer } from "@/features/org-visualizer";
 
 export default function OrgVisualizerPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -33,13 +10,11 @@ export default function OrgVisualizerPage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const render = () => drawSquare(canvas);
+    const visualizer = new CanvasVisualizer(canvas);
+    visualizer.mount();
 
-    render();
-    window.addEventListener("resize", render);
-
-    return () => window.removeEventListener("resize", render);
+    return () => visualizer.unmount();
   }, []);
 
-  return <canvas ref={canvasRef} className="block h-screen w-screen" />;
+  return <canvas ref={canvasRef} className="bg-black" />;
 }
