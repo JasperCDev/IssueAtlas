@@ -1,5 +1,5 @@
 "use client";
-import OrgVisCanvas from "./components/OrgVisCanvas";
+import OrgVisCanvas from "./components/org-vis-canvas";
 
 export default function OrgVisualizerPage() {
   return <OrgVisCanvas />;
