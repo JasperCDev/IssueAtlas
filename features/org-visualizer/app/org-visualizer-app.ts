@@ -1,10 +1,14 @@
 import { PROJECT_LIST, SPRINTS, TICKETS } from "@/lib/mock-data";
+import { Component } from "../core/component";
 import { ProjectGroup } from "../entities/project-group";
+import { InputManager } from "../input/input-manager";
 import { Scene } from "../scene/scene";
 
 export class OrgVisualizerApp {
   private readonly context: CanvasRenderingContext2D;
   private readonly scene = new Scene();
+  private readonly input: InputManager;
+  private readonly components: Component[];
   private animationFrameId: number | null = null;
   private lastFrameTime = 0;
 
@@ -15,6 +19,8 @@ export class OrgVisualizerApp {
     }
 
     this.context = context;
+    this.input = new InputManager(canvas);
+    this.components = [this.input];
   }
 
   private resizeCanvas() {
@@ -48,12 +54,19 @@ export class OrgVisualizerApp {
   private frame = (time: number) => {
     const deltaTime = this.lastFrameTime === 0 ? 0 : (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
+    const updateContext = {
+      deltaTime,
+      input: this.input,
+      worldPosition: { x: 0, y: 0 },
+    };
+
+    for (let index = 0; index < this.components.length; index += 1) {
+      this.components[index]?._update(updateContext);
+    }
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.scene.update({
-      deltaTime,
-    });
+    this.scene.update(updateContext);
 
     this.scene.draw({
       context: this.context,
@@ -69,6 +82,7 @@ export class OrgVisualizerApp {
   mount() {
     this.resizeCanvas();
     this.rebuildScene();
+    this.input.mount();
     window.addEventListener("resize", this.handleResize);
     this.animationFrameId = window.requestAnimationFrame(this.frame);
   }
@@ -80,5 +94,6 @@ export class OrgVisualizerApp {
     }
 
     window.removeEventListener("resize", this.handleResize);
+    this.input.unmount();
   }
 }

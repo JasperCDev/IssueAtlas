@@ -1,3 +1,6 @@
+import { Component } from "../core/component";
+import type { InputState } from "../core/input-state";
+
 export type Point = {
   x: number;
   y: number;
@@ -5,6 +8,8 @@ export type Point = {
 
 export type UpdateContext = {
   deltaTime: number;
+  input: InputState;
+  worldPosition: Point;
 };
 
 export type DrawContext = {
@@ -16,17 +21,24 @@ type EntityOptions = {
   position: Point;
 };
 
-export abstract class Entity {
+export abstract class Entity extends Component {
   readonly id: string;
   protected readonly position: Point;
 
   constructor(options: EntityOptions) {
+    super();
     this.id = options.id;
     this.position = options.position;
   }
 
-  _update(context: UpdateContext) {
-    this.update(context);
+  override _update(context: UpdateContext) {
+    super._update({
+      ...context,
+      worldPosition: {
+        x: context.worldPosition.x + this.position.x,
+        y: context.worldPosition.y + this.position.y,
+      },
+    });
   }
 
   _draw(context: DrawContext) {

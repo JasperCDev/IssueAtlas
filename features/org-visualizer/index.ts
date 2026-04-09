@@ -15,10 +15,3 @@ export class CanvasVisualizer {
     this.app.unmount();
   }
 }
-
-export { ProjectGroup } from "./entities/project-group";
-export { SprintGroup } from "./entities/sprint-group";
-export { TicketNode } from "./entities/ticket-node";
-export { ContainerEntity } from "./entities/container-entity";
-export type { DrawContext, Entity, Point, UpdateContext } from "./entities/entity";
-export { Scene } from "./scene/scene";

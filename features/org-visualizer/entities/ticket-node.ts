@@ -59,7 +59,16 @@ export class TicketNode extends Entity {
   }
 
   protected override update(context: UpdateContext) {
-    void context;
+    if (
+      context.input.clicked({
+        x: context.worldPosition.x,
+        y: context.worldPosition.y,
+        width: this.size,
+        height: this.size,
+      })
+    ) {
+      window.alert(`Ticket clicked: ${this.id}`);
+    }
   }
 
   protected override draw(context: DrawContext) {

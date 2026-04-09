@@ -13,10 +13,18 @@ export abstract class ContainerEntity extends Entity {
   }
 
   override _update(context: UpdateContext) {
-    this.update(context);
+    const nextContext = {
+      ...context,
+      worldPosition: {
+        x: context.worldPosition.x + this.position.x,
+        y: context.worldPosition.y + this.position.y,
+      },
+    };
+
+    this.update(nextContext);
 
     for (let index = 0; index < this.children.length; index += 1) {
-      this.children[index]?._update(context);
+      this.children[index]?._update(nextContext);
     }
   }
 
