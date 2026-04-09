@@ -8,6 +8,7 @@ import {
   RiFoldersLine,
 } from "@remixicon/react";
 import Link from "next/link";
+import { Space_Grotesk } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { PROJECT_LIST } from "@/lib/mock-data";
@@ -26,6 +27,11 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
+const logoFont = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
@@ -37,13 +43,15 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
+    <SidebarHeader>
+      <SidebarMenu>
           <SidebarMenuItem>
             <span className="flex flex-row gap-1 items-center">
               <RiSparklingLine size={36} className="w-5! h-5! text-primary" />
 
-              <h1 className="font-bold group-data-[collapsible=icon]:hidden text-2xl">
+              <h1
+                className={`${logoFont.className} group-data-[collapsible=icon]:hidden text-2xl font-bold tracking-normal`}
+              >
                 Issue<span className="text-primary">Atlas</span>
               </h1>
             </span>
