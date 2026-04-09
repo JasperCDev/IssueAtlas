@@ -1,6 +1,6 @@
-import { PROJECT_LIST, SPRINTS, TICKETS } from "@/lib/mock-data";
+import { PROJECT_LIST, SPRINTS, TICKETS, TICKET_STATUS_LIST } from "@/lib/mock-data";
 import { Component } from "../core/component";
-import { ProjectGroup } from "../entities/project-group";
+import { TicketGrid } from "../entities/ticket-grid";
 import { InputManager } from "../input/input-manager";
 import { Scene } from "../scene/scene";
 
@@ -36,19 +36,18 @@ export class OrgVisualizerApp {
   }
 
   private rebuildScene() {
-    const projectGroups = PROJECT_LIST.map((project, index) =>
-      new ProjectGroup({
-        project,
+    this.scene.replaceEntities([
+      new TicketGrid({
         position: {
           x: 24,
-          y: 32 + index * 112,
+          y: 32,
         },
+        projects: PROJECT_LIST,
         sprints: SPRINTS,
         tickets: TICKETS,
+        statuses: TICKET_STATUS_LIST,
       }),
-    );
-
-    this.scene.replaceEntities(projectGroups);
+    ]);
   }
 
   private frame = (time: number) => {
