@@ -40,7 +40,7 @@ export class OrgVisualizerApp {
       new TicketGrid({
         position: {
           x: 24,
-          y: 32,
+          y: 80,
         },
         projects: PROJECT_LIST,
         sprints: SPRINTS,
