@@ -86,7 +86,6 @@ export type Sprint = {
   name: string;
   start: Date;
   end: Date;
-  projectId: ProjectId;
   isCurrent: boolean;
 };
 
@@ -309,8 +308,8 @@ function createProjectUsers(projectIndex: number): User[] {
   });
 }
 
-function createProjectSprints(projectId: ProjectId, projectIndex: number): Sprint[] {
-  const currentSprintStart = startOfDay(addDays(new Date(), -(projectIndex % 5)));
+function createProjectSprints(): Sprint[] {
+  const currentSprintStart = startOfDay(new Date());
 
   return Array.from({ length: TOTAL_SPRINTS_PER_PROJECT }, (_, sprintIndex) => {
     const sprintNumber = sprintIndex + 1;
@@ -322,11 +321,10 @@ function createProjectSprints(projectId: ProjectId, projectIndex: number): Sprin
     const end = addDays(start, SPRINT_LENGTH_DAYS - 1);
 
     return {
-      id: `${projectId}-sprint-${sprintNumber}`,
+      id: `sprint-${sprintNumber}`,
       name: isCurrent ? `Sprint ${sprintNumber} Current` : `Sprint ${sprintNumber}`,
       start,
       end,
-      projectId,
       isCurrent,
     };
   });
@@ -400,12 +398,13 @@ function createProjectTickets(project: Project, sprints: Sprint[], projectIndex:
   });
 }
 
+export const SPRINTS: Sprint[] = createProjectSprints();
+
 const PROJECT_BLUEPRINTS = PROJECT_DEFINITIONS.map((definition, projectIndex) => {
   const userIds = Array.from({ length: USERS_PER_PROJECT }, (_, memberIndex) =>
     buildUserId(projectIndex, memberIndex),
   );
-  const sprints = createProjectSprints(definition.id, projectIndex);
-  const currentSprintId = sprints[sprints.length - 1]!.id;
+  const currentSprintId = SPRINTS[SPRINTS.length - 1]!.id;
 
   return {
     project: {
@@ -415,7 +414,6 @@ const PROJECT_BLUEPRINTS = PROJECT_DEFINITIONS.map((definition, projectIndex) =>
       userIds,
       currentSprintId,
     } satisfies Project,
-    sprints,
   };
 });
 
@@ -427,10 +425,8 @@ export const USERS: User[] = PROJECT_BLUEPRINTS.flatMap((_, projectIndex) =>
   createProjectUsers(projectIndex),
 );
 
-export const SPRINTS: Sprint[] = PROJECT_BLUEPRINTS.flatMap((entry) => entry.sprints);
-
 export const TICKETS: Ticket[] = PROJECT_BLUEPRINTS.flatMap((entry, projectIndex) =>
-  createProjectTickets(entry.project, entry.sprints, projectIndex),
+  createProjectTickets(entry.project, SPRINTS, projectIndex),
 );
 
 export const BASE_TICKETS: Ticket[] = TICKETS;
@@ -444,7 +440,7 @@ const PROJECT_USERS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, User[]>>((acc,
 
 const PROJECT_SPRINTS_BY_ID = PROJECT_LIST.reduce<Record<ProjectId, Sprint[]>>(
   (acc, project) => {
-    acc[project.id] = SPRINTS.filter((sprint) => sprint.projectId === project.id);
+    acc[project.id] = SPRINTS;
     return acc;
   },
   {} as Record<ProjectId, Sprint[]>,
