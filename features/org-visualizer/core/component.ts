@@ -5,6 +5,8 @@ export abstract class Component {
     this.update(context);
   }
 
+  cleanup() {}
+
   protected update(context: UpdateContext) {
     void context;
   }

@@ -1,4 +1,9 @@
-import { PROJECT_LIST, SPRINTS, TICKETS, TICKET_STATUS_LIST } from "@/lib/mock-data";
+import {
+  PROJECT_LIST,
+  SPRINTS,
+  TICKETS,
+  TICKET_STATUS_LIST,
+} from "@/lib/mock-data";
 import { Component } from "../core/component";
 import { TicketGrid } from "../entities/ticket-grid";
 import { InputManager } from "../input/input-manager";
@@ -51,7 +56,8 @@ export class OrgVisualizerApp {
   }
 
   private frame = (time: number) => {
-    const deltaTime = this.lastFrameTime === 0 ? 0 : (time - this.lastFrameTime) / 1000;
+    const deltaTime =
+      this.lastFrameTime === 0 ? 0 : (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
     const updateContext = {
       deltaTime,
@@ -63,9 +69,23 @@ export class OrgVisualizerApp {
       this.components[index]?._update(updateContext);
     }
 
+    if (this.input.isDragging()) {
+      console.log("Dragging");
+    }
+    if (this.input.isDragEnd()) {
+      alert("DRAGGED");
+    }
+    if (this.input.clicked()) {
+      alert("background clicked!");
+    }
+
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.scene.update(updateContext);
+
+    for (let index = 0; index < this.components.length; index += 1) {
+      this.components[index]?.cleanup();
+    }
 
     this.scene.draw({
       context: this.context,

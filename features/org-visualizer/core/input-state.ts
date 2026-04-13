@@ -6,5 +6,8 @@ export type Rect = {
 };
 
 export interface InputState {
-  clicked(bounds: Rect): boolean;
+  clicked(rect?: Rect): boolean;
+  isMouseOver(rect: Rect): boolean;
+  isDragging(rect?: Rect): boolean;
+  isDragEnd(rect?: Rect): boolean;
 }

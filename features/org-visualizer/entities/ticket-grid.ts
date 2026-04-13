@@ -36,17 +36,8 @@ type TicketCell = {
   y: number;
 };
 
-type ProjectRow = {
-  title: string;
-  titleY: number;
-  sprintTitle: string | null;
-  sprintTitleX: number;
-  sprintTitleY: number;
-  tickets: TicketCell[];
-};
-
 export class TicketGrid extends Entity {
-  private readonly rows: ProjectRow[] = [];
+  private _ticketCells: TicketCell[] = [];
 
   constructor(private options: TicketGridOptions) {
     super({
@@ -56,32 +47,25 @@ export class TicketGrid extends Entity {
   }
 
   protected override update(context: UpdateContext) {
-    for (let rowIndex = 0; rowIndex < this.rows.length; rowIndex += 1) {
-      const row = this.rows[rowIndex]!;
+    for (let i = 0; i < this._ticketCells.length; i += 1) {
+      const cell = this._ticketCells[i]!;
 
-      for (
-        let ticketIndex = 0;
-        ticketIndex < row.tickets.length;
-        ticketIndex += 1
+      if (
+        context.input.clicked({
+          x: context.worldPosition.x + cell.x,
+          y: context.worldPosition.y + cell.y,
+          width: 8,
+          height: 8,
+        })
       ) {
-        const ticket = row.tickets[ticketIndex]!;
-
-        if (
-          context.input.clicked({
-            x: context.worldPosition.x + ticket.x,
-            y: context.worldPosition.y + ticket.y,
-            width: 8,
-            height: 8,
-          })
-        ) {
-          window.alert(`Ticket clicked: ${ticket.id}`);
-          return;
-        }
+        window.alert(`Ticket clicked: ${cell.id}`);
+        return;
       }
     }
   }
 
   protected override draw({ context }: DrawContext) {
+    this._ticketCells = [];
     const sprints = this.options.sprints.map((sprint) => {
       return {
         ...sprint,
@@ -153,6 +137,7 @@ export class TicketGrid extends Entity {
             const fillStyle = this.resolveFillStyle(ticket.assignedId);
             context.fillStyle = fillStyle;
             context.fillRect(x, y, 8, 8);
+            this._ticketCells.push({ id: ticket.id, assignedId: ticket.assignedId, x, y });
             y += 12;
           });
           x += 116;
