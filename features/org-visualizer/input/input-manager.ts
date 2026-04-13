@@ -73,6 +73,13 @@ export class InputManager extends Component implements InputState {
     );
   }
 
+  getDragDelta(): Point {
+    return {
+      x: this._pointerState.position.x - this._pointerDownPosition.x,
+      y: this._pointerState.position.y - this._pointerDownPosition.y,
+    };
+  }
+
   mount() {
     this._canvas.addEventListener("pointerdown", this.handlePointerDown);
     this._canvas.addEventListener("pointermove", this.handlePointerMove);

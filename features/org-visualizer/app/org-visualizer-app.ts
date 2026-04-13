@@ -5,6 +5,7 @@ import {
   TICKET_STATUS_LIST,
 } from "@/lib/mock-data";
 import { Component } from "../core/component";
+import type { Point } from "../entities/entity";
 import { TicketGrid } from "../entities/ticket-grid";
 import { InputManager } from "../input/input-manager";
 import { Scene } from "../scene/scene";
@@ -14,6 +15,9 @@ export class OrgVisualizerApp {
   private readonly scene = new Scene();
   private readonly input: InputManager;
   private readonly components: Component[];
+  private readonly cameraOffset: Point = { x: 0, y: 0 };
+  private readonly panStartOffset: Point = { x: 0, y: 0 };
+  private isPanning = false;
   private animationFrameId: number | null = null;
   private lastFrameTime = 0;
 
@@ -62,7 +66,10 @@ export class OrgVisualizerApp {
     const updateContext = {
       deltaTime,
       input: this.input,
-      worldPosition: { x: 0, y: 0 },
+      worldPosition: {
+        x: this.cameraOffset.x,
+        y: this.cameraOffset.y,
+      },
     };
 
     for (let index = 0; index < this.components.length; index += 1) {
@@ -75,11 +82,19 @@ export class OrgVisualizerApp {
     this.scene.update(updateContext);
 
     if (this.input.isDragging()) {
-      console.log("Dragging");
+      if (!this.isPanning) {
+        this.panStartOffset.x = this.cameraOffset.x;
+        this.panStartOffset.y = this.cameraOffset.y;
+        this.isPanning = true;
+      }
+
+      const dragDelta = this.input.getDragDelta();
+      this.cameraOffset.x = this.panStartOffset.x + dragDelta.x;
+      this.cameraOffset.y = this.panStartOffset.y + dragDelta.y;
     }
 
     if (this.input.isDragEnd()) {
-      alert("DRAGGED");
+      this.isPanning = false;
     }
 
     if (this.input.clicked()) {
@@ -90,9 +105,12 @@ export class OrgVisualizerApp {
       this.components[index]?.cleanup();
     }
 
+    this.context.save();
+    this.context.translate(this.cameraOffset.x, this.cameraOffset.y);
     this.scene.draw({
       context: this.context,
     });
+    this.context.restore();
 
     this.animationFrameId = window.requestAnimationFrame(this.frame);
   };
