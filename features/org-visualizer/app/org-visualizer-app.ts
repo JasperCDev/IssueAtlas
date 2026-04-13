@@ -69,19 +69,22 @@ export class OrgVisualizerApp {
       this.components[index]?._update(updateContext);
     }
 
-    if (this.input.isDragging()) {
-      console.log("Dragging");
-    }
-    if (this.input.isDragEnd()) {
-      alert("DRAGGED");
-    }
-    if (this.input.clicked()) {
-      alert("background clicked!");
-    }
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.scene.update(updateContext);
+
+    if (this.input.isDragging()) {
+      console.log("Dragging");
+    }
+
+    if (this.input.isDragEnd()) {
+      alert("DRAGGED");
+    }
+
+    if (this.input.clicked()) {
+      alert("background clicked!");
+    }
 
     for (let index = 0; index < this.components.length; index += 1) {
       this.components[index]?.cleanup();

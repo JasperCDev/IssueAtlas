@@ -13,30 +13,30 @@ const DRAG_THRESHOLD_PX = 50;
 export class InputManager extends Component implements InputState {
   private readonly _pointerState = new PointerState();
   private readonly _pointerDownPosition: Point = { x: 0, y: 0 };
-  private readonly _prevPointerState = new PointerState();
-  private _isClick = false;
-  private _isDrag = false;
-  private _isDragEnd = false;
-  private _dragFlag = false;
-  private _clickFlag = false;
+  private _queuedClickStart = false;
+  private _clickReleasedThisFrame = false;
+  private _dragActive = false;
+  private _dragEndedThisFrame = false;
+  private _dragConsumed = false;
+  private _clickConsumed = false;
 
   constructor(private readonly _canvas: HTMLCanvasElement) {
     super();
   }
 
   clicked(rect?: Rect) {
-    if (this._clickFlag) {
+    if (this._clickConsumed) {
       return false;
     }
 
     if (!rect) {
-      return this._isClick;
+      return this._clickReleasedThisFrame;
     }
 
-    const isClicked = this._isClick && this.isMouseOver(rect);
+    const isClicked = this._clickReleasedThisFrame && this.isMouseOver(rect);
 
     if (isClicked) {
-      this._clickFlag = true;
+      this._clickConsumed = true;
     }
 
     return isClicked;
@@ -52,13 +52,13 @@ export class InputManager extends Component implements InputState {
   }
 
   isDragging(rect?: Rect) {
-    if (this._dragFlag) {
+    if (this._dragConsumed) {
       return false;
     }
 
     const isDragging = derive(() => {
-      if (!rect) {return this._isDrag;}
-      return this._isDrag &&
+      if (!rect) {return this._dragActive;}
+      return this._dragActive &&
         this._pointerDownPosition.x >= rect.x &&
         this._pointerDownPosition.x <= rect.x + rect.width &&
         this._pointerDownPosition.y >= rect.y &&
@@ -66,7 +66,7 @@ export class InputManager extends Component implements InputState {
     })
 
     if (isDragging) {
-      this._dragFlag = true;
+      this._dragConsumed = true;
     }
 
     return isDragging;
@@ -74,10 +74,10 @@ export class InputManager extends Component implements InputState {
 
   isDragEnd(rect?: Rect) {
     if (!rect) {
-      return this._isDragEnd;
+      return this._dragEndedThisFrame;
     }
     return (
-      this._isDragEnd &&
+      this._dragEndedThisFrame &&
       this._pointerDownPosition.x >= rect.x &&
       this._pointerDownPosition.x <= rect.x + rect.width &&
       this._pointerDownPosition.y >= rect.y &&
@@ -98,29 +98,28 @@ export class InputManager extends Component implements InputState {
   }
 
   override cleanup() {
-    this._prevPointerState.isDown = this._pointerState.isDown;
-    this._isClick = false;
-    this._clickFlag = false;
-    this._dragFlag = false;
-    this._isDragEnd = false;
+    this._clickReleasedThisFrame = false;
+    this._clickConsumed = false;
+    this._dragConsumed = false;
+    this._dragEndedThisFrame = false;
   }
 
   protected override update(context: UpdateContext) {
     void context;
     const deltaX = this._pointerState.position.x - this._pointerDownPosition.x;
     const deltaY = this._pointerState.position.y - this._pointerDownPosition.y;
-    this._isClick =
-      this._pointerState.isDown && !this._prevPointerState.isDown;
+    this._clickReleasedThisFrame = this._queuedClickStart;
+    this._queuedClickStart = false;
 
     const newIsDrag =
       this._pointerState.isDown &&
-      (this._isDrag || Math.hypot(deltaX, deltaY) >= DRAG_THRESHOLD_PX);
+      (this._dragActive || Math.hypot(deltaX, deltaY) >= DRAG_THRESHOLD_PX);
 
-    const wasDragging = this._isDrag;
-    this._isDrag = newIsDrag;
+    const wasDragging = this._dragActive;
+    this._dragActive = newIsDrag;
 
-    if (!this._isDrag && wasDragging) {
-      this._isDragEnd = true;
+    if (!this._dragActive && wasDragging) {
+      this._dragEndedThisFrame = true;
     }
   }
 
@@ -142,7 +141,13 @@ export class InputManager extends Component implements InputState {
     this.updatePointerPosition(event.clientX, event.clientY);
   };
 
-  private handlePointerUp = () => {
+  private handlePointerUp = (event: PointerEvent) => {
+    this.updatePointerPosition(event.clientX, event.clientY);
+
+    if (this._pointerState.isDown && !this._dragActive) {
+      this._queuedClickStart = true;
+    }
+
     this._pointerState.isDown = false;
   };
 }
