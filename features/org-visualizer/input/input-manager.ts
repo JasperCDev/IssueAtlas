@@ -43,12 +43,7 @@ export class InputManager extends Component implements InputState {
   }
 
   isMouseOver(rect: Rect) {
-    return (
-      this._pointerState.position.x >= rect.x &&
-      this._pointerState.position.x <= rect.x + rect.width &&
-      this._pointerState.position.y >= rect.y &&
-      this._pointerState.position.y <= rect.y + rect.height
-    );
+    return this.isIntersecting(this._pointerState.position, rect);
   }
 
   isDragging(rect?: Rect) {
@@ -58,11 +53,7 @@ export class InputManager extends Component implements InputState {
 
     const isDragging = derive(() => {
       if (!rect) {return this._dragActive;}
-      return this._dragActive &&
-        this._pointerDownPosition.x >= rect.x &&
-        this._pointerDownPosition.x <= rect.x + rect.width &&
-        this._pointerDownPosition.y >= rect.y &&
-        this._pointerDownPosition.y <= rect.y + rect.height;
+      return this._dragActive && this.isIntersecting(this._pointerDownPosition, rect);
     })
 
     if (isDragging) {
@@ -78,10 +69,7 @@ export class InputManager extends Component implements InputState {
     }
     return (
       this._dragEndedThisFrame &&
-      this._pointerDownPosition.x >= rect.x &&
-      this._pointerDownPosition.x <= rect.x + rect.width &&
-      this._pointerDownPosition.y >= rect.y &&
-      this._pointerDownPosition.y <= rect.y + rect.height
+      this.isIntersecting(this._pointerDownPosition, rect)
     );
   }
 
@@ -128,6 +116,40 @@ export class InputManager extends Component implements InputState {
 
     this._pointerState.position.x = clientX - rect.left;
     this._pointerState.position.y = clientY - rect.top;
+  }
+
+  private isIntersecting(a: Rect | Point, b: Rect | Point) {
+    const aIsRect = "width" in a && "height" in a;
+    const bIsRect = "width" in b && "height" in b;
+
+    if (aIsRect && bIsRect) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    if (!aIsRect && bIsRect) {
+      return (
+        a.x >= b.x &&
+        a.x <= b.x + b.width &&
+        a.y >= b.y &&
+        a.y <= b.y + b.height
+      );
+    }
+
+    if (aIsRect && !bIsRect) {
+      return (
+        b.x >= a.x &&
+        b.x <= a.x + a.width &&
+        b.y >= a.y &&
+        b.y <= a.y + a.height
+      );
+    }
+
+    return a.x === b.x && a.y === b.y;
   }
 
   private handlePointerDown = (event: PointerEvent) => {
