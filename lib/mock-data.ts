@@ -292,6 +292,10 @@ function extractTicketNumber(ticketId: string): number {
   return match ? Number.parseInt(match[1], 10) : 0;
 }
 
+export function formatTicketId(projectCode: string, ticketNumber: number): string {
+  return `${projectCode}-${String(ticketNumber).padStart(3, "0")}`;
+}
+
 function createProjectUsers(projectIndex: number): User[] {
   return Array.from({ length: USERS_PER_PROJECT }, (_, memberIndex) => {
     const firstName = FIRST_NAMES[projectIndex * USERS_PER_PROJECT + memberIndex]!;
@@ -350,6 +354,8 @@ function createTicketDescription(rng: () => number, project: Project, sprint: Sp
 }
 
 function createProjectTickets(project: Project, sprints: Sprint[], projectIndex: number): Ticket[] {
+  let nextTicketNumber = 1;
+
   return sprints.flatMap((sprint, sprintIndex) => {
     const rng = createRng(createSeed(projectIndex + 1, sprintIndex + 1, 2026));
     const baseTicketCount = sprint.isCurrent
@@ -360,8 +366,8 @@ function createProjectTickets(project: Project, sprints: Sprint[], projectIndex:
       baseTicketCount + randomInt(rng, sprint.isCurrent ? -6 : -4, sprint.isCurrent ? 12 : 8),
     );
 
-    return Array.from({ length: ticketCount }, (_, ticketIndex) => {
-      const ticketNumber = sprintIndex * 1000 + ticketIndex + 1;
+    return Array.from({ length: ticketCount }, () => {
+      const ticketNumber = nextTicketNumber++;
       const statusRoll = rng();
       const statusId =
         statusRoll < 0.22
@@ -383,7 +389,7 @@ function createProjectTickets(project: Project, sprints: Sprint[], projectIndex:
             : addDays(sprint.start, randomInt(rng, 1, SPRINT_LENGTH_DAYS + 3));
 
       return {
-        id: `${project.code}-${String(ticketNumber).padStart(4, "0")}`,
+        id: formatTicketId(project.code, ticketNumber),
         title: createTicketTitle(rng),
         description: createTicketDescription(rng, project, sprint),
         priority: rng() < 0.1 ? null : randomInt(rng, 0, 3),

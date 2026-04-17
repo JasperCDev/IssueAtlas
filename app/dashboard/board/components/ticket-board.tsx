@@ -6,6 +6,7 @@ import { move } from "@dnd-kit/helpers";
 import { useParams } from "next/navigation";
 
 import {
+  formatTicketId,
   getLatestTicketNumber,
   getProjectData,
   TICKET_STATUS_LIST,
@@ -66,7 +67,7 @@ export function TicketBoard() {
       ]);
 
       const newTicket: Ticket = {
-        id: `${project.code}-${String(maxId + 1).padStart(4, "0")}`,
+        id: formatTicketId(project.code, maxId + 1),
         title: input.title,
         description: input.description,
         priority: input.priority,
