@@ -168,3 +168,26 @@ html, body {
 .animate-ticket-panel-out {
   animation: ticket-panel-slide-out-right 700ms ease-in-out both;
 }
+
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: transform 200ms ease, width 200ms ease, height 200ms ease;
+}
+
+.react-grid-item > * {
+  height: 100%;
+}
+
+.react-grid-item.react-grid-placeholder {
+  border-radius: var(--radius-lg);
+  border: 1px dashed color-mix(in srgb, var(--primary) 35%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.react-grid-item.react-draggable-dragging {
+  z-index: 30;
+}
