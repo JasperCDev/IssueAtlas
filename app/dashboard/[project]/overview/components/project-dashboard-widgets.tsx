@@ -49,7 +49,6 @@ function getTicketSequence(ticketId: string) {
 
 function RecentActivityContent({
   widget,
-  dragHandleProps,
 }: SortableWidgetComponentProps) {
   const { users, allTickets } = useOverviewProjectData();
 
@@ -65,7 +64,7 @@ function RecentActivityContent({
   };
 
   return (
-    <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
+    <SortableWidgetCard title={widget.title}>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -111,7 +110,6 @@ function RecentActivityContent({
 
 function BlockedIssuesContent({
   widget,
-  dragHandleProps,
 }: SortableWidgetComponentProps) {
   const { users, tickets } = useOverviewProjectData();
   const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
@@ -141,7 +139,7 @@ function BlockedIssuesContent({
   };
 
   return (
-    <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
+    <SortableWidgetCard title={widget.title}>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -185,7 +183,6 @@ function BlockedIssuesContent({
 
 function ProjectVelocityContent({
   widget,
-  dragHandleProps,
 }: SortableWidgetComponentProps) {
   const { allTickets, currentSprint, sprints } = useOverviewProjectData();
   const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
@@ -245,7 +242,7 @@ function ProjectVelocityContent({
   );
 
   return (
-    <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
+    <SortableWidgetCard title={widget.title}>
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="flex items-start justify-between">
           <div>
@@ -297,7 +294,6 @@ function ProjectVelocityContent({
 
 function CycleTimeContent({
   widget,
-  dragHandleProps,
 }: SortableWidgetComponentProps) {
   const { tickets } = useOverviewProjectData();
   const doneStatusId = STATUS_MAP_BY_NAME.DONE.id;
@@ -345,7 +341,7 @@ function CycleTimeContent({
   );
 
   return (
-    <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
+    <SortableWidgetCard title={widget.title}>
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         <div className="grid grid-cols-3 gap-2">
           <div className="rounded-md bg-muted/40 px-2 py-1.5">

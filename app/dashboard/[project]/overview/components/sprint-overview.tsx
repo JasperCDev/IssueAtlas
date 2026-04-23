@@ -46,7 +46,6 @@ function groupTicketsByUser(
 
 function SprintOverviewContent({
   widget,
-  dragHandleProps,
 }: SortableWidgetComponentProps) {
   const params = useParams<{ project?: string }>();
   const { users, tickets } = useMemo(
@@ -89,7 +88,7 @@ function SprintOverviewContent({
   }, [tickets, users]);
 
   return (
-    <SortableWidgetCard title={widget.title} dragHandleProps={dragHandleProps}>
+    <SortableWidgetCard title={widget.title}>
       <TooltipProvider>
         <div className="flex min-h-0 w-full flex-1 flex-col gap-2">
 
