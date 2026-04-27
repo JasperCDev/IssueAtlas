@@ -19,6 +19,7 @@ export class InputManager extends Component implements InputState {
   private _dragEndedThisFrame = false;
   private _dragConsumed = false;
   private _clickConsumed = false;
+  private _wheelDeltaY = 0;
 
   constructor(private readonly _canvas: HTMLCanvasElement) {
     super();
@@ -80,15 +81,30 @@ export class InputManager extends Component implements InputState {
     };
   }
 
+  getPointerPosition(): Point {
+    return {
+      x: this._pointerState.position.x,
+      y: this._pointerState.position.y,
+    };
+  }
+
+  wheel() {
+    const deltaY = this._wheelDeltaY;
+    this._wheelDeltaY = 0;
+    return deltaY;
+  }
+
   mount() {
     this._canvas.addEventListener("pointerdown", this.handlePointerDown);
     this._canvas.addEventListener("pointermove", this.handlePointerMove);
+    this._canvas.addEventListener("wheel", this.handleWheel, { passive: false });
     window.addEventListener("pointerup", this.handlePointerUp);
   }
 
   unmount() {
     this._canvas.removeEventListener("pointerdown", this.handlePointerDown);
     this._canvas.removeEventListener("pointermove", this.handlePointerMove);
+    this._canvas.removeEventListener("wheel", this.handleWheel);
     window.removeEventListener("pointerup", this.handlePointerUp);
   }
 
@@ -178,5 +194,11 @@ export class InputManager extends Component implements InputState {
     }
 
     this._pointerState.isDown = false;
+  };
+
+  private handleWheel = (event: WheelEvent) => {
+    this.updatePointerPosition(event.clientX, event.clientY);
+    this._wheelDeltaY += event.deltaY;
+    event.preventDefault();
   };
 }

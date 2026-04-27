@@ -5,7 +5,7 @@ import {
   TICKET_STATUS_LIST,
 } from "@/lib/mock-data";
 import { Component } from "../core/component";
-import type { Point } from "../entities/entity";
+import { Camera } from "../core/camera";
 import { TicketGrid } from "../entities/ticket-grid";
 import { InputManager } from "../input/input-manager";
 import { Scene } from "../scene/scene";
@@ -15,9 +15,7 @@ export class OrgVisualizerApp {
   private readonly scene = new Scene();
   private readonly input: InputManager;
   private readonly components: Component[];
-  private readonly cameraOffset: Point = { x: 0, y: 0 };
-  private readonly panStartOffset: Point = { x: 0, y: 0 };
-  private isPanning = false;
+  private readonly camera = new Camera();
   private animationFrameId: number | null = null;
   private lastFrameTime = 0;
 
@@ -63,39 +61,33 @@ export class OrgVisualizerApp {
     const deltaTime =
       this.lastFrameTime === 0 ? 0 : (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
-    const updateContext = {
-      deltaTime,
-      input: this.input,
-      worldPosition: {
-        x: this.cameraOffset.x,
-        y: this.cameraOffset.y,
-      },
-    };
 
     for (let index = 0; index < this.components.length; index += 1) {
-      this.components[index]?._update(updateContext);
+      this.components[index]?._update({
+        deltaTime,
+        input: this.input,
+        worldPosition: { x: 0, y: 0 },
+      });
     }
 
+    this.camera.updatePan(
+      this.input.isDragging(),
+      this.input.isDragEnd(),
+      this.input.getDragDelta(),
+    );
+
+    const wheelDeltaY = this.input.wheel();
+    this.camera.zoomAt(this.input.getPointerPosition(), wheelDeltaY);
+
+    const updateContext = {
+      deltaTime,
+      input: this.camera.adaptInputToWorldSpace(this.input),
+      worldPosition: { x: 0, y: 0 },
+    };
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.scene.update(updateContext);
-
-    if (this.input.isDragging()) {
-      if (!this.isPanning) {
-        this.panStartOffset.x = this.cameraOffset.x;
-        this.panStartOffset.y = this.cameraOffset.y;
-        this.isPanning = true;
-      }
-
-      const dragDelta = this.input.getDragDelta();
-      this.cameraOffset.x = this.panStartOffset.x + dragDelta.x;
-      this.cameraOffset.y = this.panStartOffset.y + dragDelta.y;
-    }
-
-    if (this.input.isDragEnd()) {
-      this.isPanning = false;
-    }
 
     if (this.input.clicked()) {
       alert("background clicked!");
@@ -106,7 +98,7 @@ export class OrgVisualizerApp {
     }
 
     this.context.save();
-    this.context.translate(this.cameraOffset.x, this.cameraOffset.y);
+    this.camera.apply(this.context);
     this.scene.draw({
       context: this.context,
     });
