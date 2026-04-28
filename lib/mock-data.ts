@@ -67,16 +67,66 @@ export type User = {
 };
 
 const PROJECT_DEFINITIONS = [
-  { id: "atlas", code: "ATL", name: "Atlas Platform" },
-  { id: "orbit", code: "ORB", name: "Orbit Commerce" },
-  { id: "pulse", code: "PLS", name: "Pulse Growth" },
-  { id: "forge", code: "FRG", name: "Forge Mobile" },
-  { id: "harbor", code: "HBR", name: "Harbor Infrastructure" },
-  { id: "lumen", code: "LMN", name: "Lumen AI" },
-  { id: "shield", code: "SHD", name: "Shield Security" },
-  { id: "northstar", code: "NTH", name: "Northstar Support" },
-  { id: "summit", code: "SUM", name: "Summit Revenue Ops" },
-  { id: "studio", code: "STD", name: "Studio Experience" },
+  {
+    id: "atlas",
+    code: "ATL",
+    name: "Atlas Platform",
+    emailDomain: "atlasplatform.io",
+  },
+  {
+    id: "orbit",
+    code: "ORB",
+    name: "Orbit Commerce",
+    emailDomain: "orbitcommerce.com",
+  },
+  {
+    id: "pulse",
+    code: "PLS",
+    name: "Pulse Growth",
+    emailDomain: "pulsegrowth.co",
+  },
+  {
+    id: "forge",
+    code: "FRG",
+    name: "Forge Mobile",
+    emailDomain: "forgemobile.app",
+  },
+  {
+    id: "harbor",
+    code: "HBR",
+    name: "Harbor Infrastructure",
+    emailDomain: "harborinfra.net",
+  },
+  {
+    id: "lumen",
+    code: "LMN",
+    name: "Lumen AI",
+    emailDomain: "lumenai.dev",
+  },
+  {
+    id: "shield",
+    code: "SHD",
+    name: "Shield Security",
+    emailDomain: "shieldsec.io",
+  },
+  {
+    id: "northstar",
+    code: "NTH",
+    name: "Northstar Support",
+    emailDomain: "northstarsupport.com",
+  },
+  {
+    id: "summit",
+    code: "SUM",
+    name: "Summit Revenue Ops",
+    emailDomain: "summitrevops.com",
+  },
+  {
+    id: "studio",
+    code: "STD",
+    name: "Studio Experience",
+    emailDomain: "studioxp.design",
+  },
 ] as const;
 
 export type ProjectId = (typeof PROJECT_DEFINITIONS)[number]["id"];
@@ -188,6 +238,19 @@ const ACTIONS = [
   "Accelerate",
 ] as const;
 
+const PROJECT_STREAMS: Record<ProjectId, readonly string[]> = {
+  atlas: ["workspace search", "workflow templates", "cross-team dependencies"],
+  orbit: ["checkout events", "catalog sync", "order reconciliation"],
+  pulse: ["campaign attribution", "lead scoring", "funnel conversion"],
+  forge: ["offline sync", "push onboarding", "mobile release gates"],
+  harbor: ["cluster health", "deployment rollout", "incident response"],
+  lumen: ["prompt routing", "eval pipeline", "model fallback rules"],
+  shield: ["audit evidence", "policy exceptions", "access reviews"],
+  northstar: ["queue triage", "SLA alerts", "case escalation"],
+  summit: ["forecast snapshots", "pipeline hygiene", "renewal signals"],
+  studio: ["design reviews", "prototype feedback", "accessibility audits"],
+};
+
 const SUBJECTS = [
   "workflow orchestration",
   "issue intake",
@@ -296,7 +359,10 @@ export function formatTicketId(projectCode: string, ticketNumber: number): strin
   return `${projectCode}-${String(ticketNumber).padStart(3, "0")}`;
 }
 
-function createProjectUsers(projectIndex: number): User[] {
+function createProjectUsers(
+  projectIndex: number,
+  emailDomain: string,
+): User[] {
   return Array.from({ length: USERS_PER_PROJECT }, (_, memberIndex) => {
     const firstName = FIRST_NAMES[projectIndex * USERS_PER_PROJECT + memberIndex]!;
     const lastName = LAST_NAMES[(projectIndex + memberIndex) % LAST_NAMES.length]!;
@@ -307,7 +373,7 @@ function createProjectUsers(projectIndex: number): User[] {
       id,
       firstName,
       lastName,
-      email: `${email}@example.com`,
+      email: `${email}@${emailDomain}`,
     };
   });
 }
@@ -334,15 +400,19 @@ function createProjectSprints(): Sprint[] {
   });
 }
 
-function createTicketTitle(rng: () => number): string {
+function createTicketTitle(rng: () => number, projectId: ProjectId): string {
   const action = sample(rng, ACTIONS);
-  const subject = sample(rng, SUBJECTS);
+  const subject = sample(rng, PROJECT_STREAMS[projectId]);
   const focus = sample(rng, FOCUS_AREAS);
 
   return `${action} ${subject} for ${focus}`;
 }
 
-function createTicketDescription(rng: () => number, project: Project, sprint: Sprint): string | null {
+function createTicketDescription(
+  rng: () => number,
+  project: Project,
+  sprint: Sprint,
+): string | null {
   if (rng() < 0.14) {
     return null;
   }
@@ -350,7 +420,7 @@ function createTicketDescription(rng: () => number, project: Project, sprint: Sp
   const surface = sample(rng, SURFACES);
   const outcome = sample(rng, OUTCOMES);
 
-  return `${project.name} work in ${sprint.name.toLowerCase()} focused on ${surface} to drive ${outcome}.`;
+  return `${project.name} scope for ${sprint.name.toLowerCase()}: improve ${surface} to unlock ${outcome}.`;
 }
 
 function createProjectTickets(project: Project, sprints: Sprint[], projectIndex: number): Ticket[] {
@@ -390,7 +460,7 @@ function createProjectTickets(project: Project, sprints: Sprint[], projectIndex:
 
       return {
         id: formatTicketId(project.code, ticketNumber),
-        title: createTicketTitle(rng),
+        title: createTicketTitle(rng, project.id),
         description: createTicketDescription(rng, project, sprint),
         priority: rng() < 0.1 ? null : randomInt(rng, 0, 3),
         statusId,
@@ -427,8 +497,8 @@ export const PROJECT_LIST: Project[] = PROJECT_BLUEPRINTS.map((entry) => entry.p
 
 export const DEFAULT_PROJECT_ID: ProjectId = PROJECT_LIST[0]!.id;
 
-export const USERS: User[] = PROJECT_BLUEPRINTS.flatMap((_, projectIndex) =>
-  createProjectUsers(projectIndex),
+export const USERS: User[] = PROJECT_DEFINITIONS.flatMap((definition, projectIndex) =>
+  createProjectUsers(projectIndex, definition.emailDomain),
 );
 
 export const TICKETS: Ticket[] = PROJECT_BLUEPRINTS.flatMap((entry, projectIndex) =>
