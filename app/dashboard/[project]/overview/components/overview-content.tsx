@@ -17,7 +17,10 @@ import {
   ProjectVelocityWidget,
 } from "./project-dashboard-widgets";
 
-const GRID_COLUMNS = 4;
+const GRID_COLUMNS = 3;
+const CARD_SIZE = 300;
+const GRID_GAP = 16;
+const GRID_WIDTH = CARD_SIZE * GRID_COLUMNS + GRID_GAP * (GRID_COLUMNS - 1);
 
 const WIDGET_COMPONENTS = {
   sprint: SprintOverviewWidget,
@@ -32,9 +35,15 @@ type DashboardWidget = Widget & {
 };
 
 const initialWidgets: DashboardWidget[] = [
-  { id: "sprint", title: "Sprint Overview", w:2, h: 1, component: "sprint" },
+  { id: "sprint", title: "Sprint Overview", w: 2, h: 1, component: "sprint" },
   { id: "tasks", title: "Recent Activity", w: 1, h: 2, component: "activity" },
-  { id: "velocity", title: "Sprint Velocity", w: 1, h: 1, component: "velocity" },
+  {
+    id: "velocity",
+    title: "Sprint Velocity",
+    w: 1,
+    h: 1,
+    component: "velocity",
+  },
   { id: "blocked", title: "Blocked Issues", w: 1, h: 1, component: "blocked" },
   { id: "cycle", title: "Cycle Time", w: 2, h: 1, component: "cycle" },
 ];
@@ -83,40 +92,36 @@ function buildBreakpointLayout(
 }
 
 export function OverviewContent() {
-  const { width, containerRef, mounted } = useContainerWidth();
-
   const [layout, setLayout] = useState<Layout>(() =>
     buildBreakpointLayout(initialWidgets, GRID_COLUMNS),
   );
 
   return (
-    <div ref={containerRef} className="pt-1">
-      {mounted ? (
-        <GridLayout
-          className="dashboard-widget-grid"
-          layout={layout}
-          width={width}
-          gridConfig={{
-            cols: GRID_COLUMNS,
-            margin: [16, 16],
-            containerPadding: [0, 0],
-            rowHeight: 260,
-          }}
-          dragConfig={{ handle: ".widget-drag-handle" }}
-          resizeConfig={{ enabled: false }}
-          onLayoutChange={(nextLayout: Layout) => setLayout(nextLayout)}
-        >
-          {initialWidgets.map((widget) => {
-            const WidgetComponent = WIDGET_COMPONENTS[widget.component];
+    <div className="pt-1">
+      <GridLayout
+        className="dashboard-widget-grid w-[${GRID_WIDTH}px]"
+        layout={layout}
+        width={GRID_WIDTH}
+        gridConfig={{
+          cols: GRID_COLUMNS,
+          margin: [16, 16],
+          containerPadding: [0, 0],
+          rowHeight: 260,
+        }}
+        dragConfig={{ handle: ".widget-drag-handle" }}
+        resizeConfig={{ enabled: false }}
+        onLayoutChange={(nextLayout: Layout) => setLayout(nextLayout)}
+      >
+        {initialWidgets.map((widget) => {
+          const WidgetComponent = WIDGET_COMPONENTS[widget.component];
 
-            return (
-              <div key={widget.id}>
-                <WidgetComponent widget={widget} />
-              </div>
-            );
-          })}
-        </GridLayout>
-      ) : null}
+          return (
+            <div key={widget.id}>
+              <WidgetComponent widget={widget} />
+            </div>
+          );
+        })}
+      </GridLayout>
     </div>
   );
 }
