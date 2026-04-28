@@ -2,7 +2,7 @@ import type { InputState, Rect } from "../core/input-state";
 import type { Point } from "../entities/entity";
 import { clamp } from "../utils";
 
-const MIN_ZOOM = 0.4;
+const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 2.5;
 const ZOOM_STEP = 0.0015;
 
