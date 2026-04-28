@@ -114,6 +114,7 @@ export default function DashboardLayout({
           <div className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden">
             <Tabs value={section}>
               <DndContext
+                id="dashboard-tabs-dnd"
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
