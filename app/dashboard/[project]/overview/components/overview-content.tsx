@@ -4,7 +4,6 @@ import type { ComponentType } from "react";
 import { useState } from "react";
 import {
   GridLayout,
-  useContainerWidth,
   type Layout,
   type LayoutItem,
 } from "react-grid-layout";
@@ -97,7 +96,7 @@ export function OverviewContent() {
   );
 
   return (
-    <div className="pt-1">
+    <div className="pt-1 pl-1">
       <GridLayout
         className="dashboard-widget-grid w-[${GRID_WIDTH}px]"
         layout={layout}
