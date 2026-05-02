@@ -2,11 +2,7 @@
 
 import type { ComponentType } from "react";
 import { useState } from "react";
-import {
-  GridLayout,
-  type Layout,
-  type LayoutItem,
-} from "react-grid-layout";
+import { GridLayout, type Layout, type LayoutItem } from "react-grid-layout";
 import { type Widget } from "./sortable-widget";
 import { SprintOverviewWidget } from "./sprint-overview";
 import {
@@ -97,30 +93,32 @@ export function OverviewContent() {
 
   return (
     <div className="pt-1 pl-1">
-      <GridLayout
-        className="dashboard-widget-grid w-[${GRID_WIDTH}px]"
-        layout={layout}
-        width={GRID_WIDTH}
-        gridConfig={{
-          cols: GRID_COLUMNS,
-          margin: [16, 16],
-          containerPadding: [0, 0],
-          rowHeight: 260,
-        }}
-        dragConfig={{ handle: ".widget-drag-handle" }}
-        resizeConfig={{ enabled: false }}
-        onLayoutChange={(nextLayout: Layout) => setLayout(nextLayout)}
-      >
-        {initialWidgets.map((widget) => {
-          const WidgetComponent = WIDGET_COMPONENTS[widget.component];
+      <div className="mx-auto" style={{ width: GRID_WIDTH }}>
+        <GridLayout
+          className="dashboard-widget-grid"
+          layout={layout}
+          width={GRID_WIDTH}
+          gridConfig={{
+            cols: GRID_COLUMNS,
+            margin: [16, 16],
+            containerPadding: [0, 0],
+            rowHeight: 260,
+          }}
+          dragConfig={{ handle: ".widget-drag-handle" }}
+          resizeConfig={{ enabled: false }}
+          onLayoutChange={(nextLayout: Layout) => setLayout(nextLayout)}
+        >
+          {initialWidgets.map((widget) => {
+            const WidgetComponent = WIDGET_COMPONENTS[widget.component];
 
-          return (
-            <div key={widget.id}>
-              <WidgetComponent widget={widget} />
-            </div>
-          );
-        })}
-      </GridLayout>
+            return (
+              <div key={widget.id}>
+                <WidgetComponent widget={widget} />
+              </div>
+            );
+          })}
+        </GridLayout>
+      </div>
     </div>
   );
 }
