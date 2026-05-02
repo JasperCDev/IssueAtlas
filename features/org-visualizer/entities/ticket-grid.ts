@@ -104,11 +104,13 @@ export class TicketGrid extends Entity {
     for (let sprintIndex = 0; sprintIndex < sprints.length; sprintIndex += 1) {
       const sprint = sprints[sprintIndex]!;
       const sprintDateLabel = `${sprint.start.toLocaleDateString()} - ${sprint.end.toLocaleDateString()}`;
+      let sprintMaxY = y;
 
       context.fillStyle = "rgba(255, 255, 255, 0.72)";
       context.font = "16px monospace";
       context.fillText(sprintDateLabel, x, y, 300);
       y += 24;
+      sprintMaxY = Math.max(sprintMaxY, y);
       for (
         let projectIndex = 0;
         projectIndex < sprint.projects.length;
@@ -140,13 +142,14 @@ export class TicketGrid extends Entity {
             this._ticketCells.push({ id: ticket.id, assignedId: ticket.assignedId, x, y });
             y += 12;
           });
+          sprintMaxY = Math.max(sprintMaxY, y);
           x += 116;
           y = tempY;
         }
         y -= 18;
       }
-      x += 300;
-      y = 0;
+      x = 0;
+      y = sprintMaxY + 40;
     }
   }
   private resolveFillStyle(assignedId: string | null) {
