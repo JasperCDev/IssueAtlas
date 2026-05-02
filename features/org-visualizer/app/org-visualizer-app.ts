@@ -18,6 +18,11 @@ export class OrgVisualizerApp {
   private readonly camera = new Camera();
   private animationFrameId: number | null = null;
   private lastFrameTime = 0;
+  private frameStats = {
+    accumulatedMs: 0,
+    accumulatedFrames: 0,
+    lastReportAt: 0,
+  };
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     const context = canvas.getContext("2d");
@@ -58,6 +63,8 @@ export class OrgVisualizerApp {
   }
 
   private frame = (time: number) => {
+    const frameStartTime = performance.now();
+
     const deltaTime =
       this.lastFrameTime === 0 ? 0 : (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
@@ -104,6 +111,8 @@ export class OrgVisualizerApp {
     });
     this.context.restore();
 
+    this.recordFrameStats(time, frameStartTime);
+
     this.animationFrameId = window.requestAnimationFrame(this.frame);
   };
 
@@ -127,5 +136,30 @@ export class OrgVisualizerApp {
 
     window.removeEventListener("resize", this.handleResize);
     this.input.unmount();
+  }
+
+  private recordFrameStats(time: number, frameStartTime: number) {
+    const frameDurationMs = performance.now() - frameStartTime;
+    this.frameStats.accumulatedMs += frameDurationMs;
+    this.frameStats.accumulatedFrames += 1;
+
+    if (this.frameStats.lastReportAt === 0) {
+      this.frameStats.lastReportAt = time;
+    }
+
+    // Report approximately once per second.
+    if (time - this.frameStats.lastReportAt >= 1000) {
+      const averageFrameTimeMs =
+        this.frameStats.accumulatedMs / this.frameStats.accumulatedFrames;
+      const averageFps = 1000 / averageFrameTimeMs;
+
+      console.log(
+        `[OrgVisualizer] frametime: ${averageFrameTimeMs.toFixed(2)}ms (${averageFps.toFixed(1)} FPS)`,
+      );
+
+      this.frameStats.accumulatedMs = 0;
+      this.frameStats.accumulatedFrames = 0;
+      this.frameStats.lastReportAt = time;
+    }
   }
 }
